@@ -1,4 +1,4 @@
-import { Codegen, Env, Run } from "./image";
+import { Codegen, Env, Run } from "./image.js";
 
 export class InstallRustToolchain implements Codegen {
   version: string;

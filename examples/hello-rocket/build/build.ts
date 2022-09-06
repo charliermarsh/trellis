@@ -1,8 +1,6 @@
-import { solve } from "./buildkit";
-import { DockerImage } from "./image";
-import { RunCargo, InstallRustToolchain } from "./layers";
+import { Image, InstallRustToolchain, RunCargo, solve } from "typekit";
 
-const binary = DockerImage.from("ubuntu:20.04")
+const binary = Image.from("ubuntu:20.04")
   .workDir("/root")
   .aptInstall([
     "build-essential",
@@ -19,7 +17,7 @@ const binary = DockerImage.from("ubuntu:20.04")
   .customLayer(new RunCargo("build --release"))
   .saveArtifact("/root/target/release/hello-rocket");
 
-const appStage = DockerImage.from("ubuntu:20.04")
+const appStage = Image.from("ubuntu:20.04")
   .workDir("/root")
   .aptInstall(["ca-certificates"])
   .expose(8000)

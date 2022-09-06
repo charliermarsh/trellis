@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "esnext",
+    "types": ["bun-types"],
+    "allowJs": false,
+    "declaration": true,
+    "rootDir": "src",
+    "outDir": "lib"
+  }
+}
