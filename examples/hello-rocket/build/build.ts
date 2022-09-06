@@ -10,11 +10,11 @@ const binary = Image.from("ubuntu:20.04")
     "pkg-config",
     "software-properties-common",
   ])
-  .customLayer(new InstallRustToolchain("1.63.0"))
+  .with(new InstallRustToolchain("1.63.0"))
   .copy("./Cargo.toml", "./Cargo.toml")
   .copy("./Cargo.lock", "./Cargo.lock")
   .copy("./src", "./src")
-  .customLayer(new RunCargo("build --release"))
+  .with(new RunCargo("build --release"))
   .saveArtifact("/root/target/release/hello-rocket");
 
 const appStage = Image.from("ubuntu:20.04")
