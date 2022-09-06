@@ -1,4 +1,6 @@
-import * as crypto from "crypto";
+import { customAlphabet } from 'nanoid'
+
+const nanoid = customAlphabet('1234567890abcdef', 10)
 
 type EnvVars = { [K: string]: string | number };
 
@@ -124,7 +126,7 @@ export class Image implements Codegen {
   }
 
   static from(source: string): Image {
-    return new Image("stage-" + crypto.randomUUID(), source, [], []);
+    return new Image(`stage-${nanoid()}`, source, [], []);
   }
 
   customLayer(layer: Codegen): Image {
