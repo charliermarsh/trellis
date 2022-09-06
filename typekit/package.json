@@ -1,0 +1,17 @@
+{
+  "name": "typekit",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": "./lib/index.js",
+  "engines": {
+    "node": ">=14.16"
+  },
+  "dependencies": {
+    "bun-types": "^0.1.10",
+    "prettier": "^2.7.1",
+    "typescript": "^4.8.2"
+  },
+  "scripts": {
+    "build": "tsc"
+  }
+}

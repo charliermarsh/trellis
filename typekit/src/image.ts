@@ -63,9 +63,9 @@ export class WorkDir implements Codegen {
 export class Copy implements Codegen {
   source: string;
   destination: string;
-  from?: DockerImage;
+  from?: Image;
 
-  constructor(source: string, destination: string, from?: DockerImage) {
+  constructor(source: string, destination: string, from?: Image) {
     this.source = source;
     this.destination = destination;
     this.from = from;
@@ -105,17 +105,17 @@ export class Env implements Codegen {
   }
 }
 
-export class DockerImage implements Codegen {
+export class Image implements Codegen {
   name: string;
   source: string;
   layers: Codegen[];
-  dependencies: DockerImage[];
+  dependencies: Image[];
 
   constructor(
     name: string,
     source: string,
     layers: Codegen[],
-    dependencies: DockerImage[]
+    dependencies: Image[]
   ) {
     this.name = name;
     this.source = source;
@@ -123,12 +123,12 @@ export class DockerImage implements Codegen {
     this.dependencies = dependencies;
   }
 
-  static from(source: string): DockerImage {
-    return new DockerImage("stage-" + crypto.randomUUID(), source, [], []);
+  static from(source: string): Image {
+    return new Image("stage-" + crypto.randomUUID(), source, [], []);
   }
 
-  customLayer(layer: Codegen): DockerImage {
-    return new DockerImage(
+  customLayer(layer: Codegen): Image {
+    return new Image(
       this.name,
       this.source,
       [...this.layers, layer],
@@ -136,8 +136,8 @@ export class DockerImage implements Codegen {
     );
   }
 
-  aptInstall(dependencies: string[]): DockerImage {
-    return new DockerImage(
+  aptInstall(dependencies: string[]): Image {
+    return new Image(
       this.name,
       this.source,
       [...this.layers, new AptInstall(dependencies)],
@@ -145,8 +145,8 @@ export class DockerImage implements Codegen {
     );
   }
 
-  workDir(dirName: string): DockerImage {
-    return new DockerImage(
+  workDir(dirName: string): Image {
+    return new Image(
       this.name,
       this.source,
       [...this.layers, new WorkDir(dirName)],
@@ -154,8 +154,8 @@ export class DockerImage implements Codegen {
     );
   }
 
-  run(sh: string): DockerImage {
-    return new DockerImage(
+  run(sh: string): Image {
+    return new Image(
       this.name,
       this.source,
       [...this.layers, new Run(sh)],
@@ -163,8 +163,8 @@ export class DockerImage implements Codegen {
     );
   }
 
-  cmd(instruction: string | string[]): DockerImage {
-    return new DockerImage(
+  cmd(instruction: string | string[]): Image {
+    return new Image(
       this.name,
       this.source,
       [...this.layers, new Cmd(instruction)],
@@ -172,8 +172,8 @@ export class DockerImage implements Codegen {
     );
   }
 
-  copy(source: string, destination: string): DockerImage {
-    return new DockerImage(
+  copy(source: string, destination: string): Image {
+    return new Image(
       this.name,
       this.source,
       [...this.layers, new Copy(source, destination)],
@@ -181,8 +181,8 @@ export class DockerImage implements Codegen {
     );
   }
 
-  expose(port: number): DockerImage {
-    return new DockerImage(
+  expose(port: number): Image {
+    return new Image(
       this.name,
       this.source,
       [...this.layers, new Expose(port)],
@@ -190,8 +190,8 @@ export class DockerImage implements Codegen {
     );
   }
 
-  env(vars: EnvVars): DockerImage {
-    return new DockerImage(
+  env(vars: EnvVars): Image {
+    return new Image(
       this.name,
       this.source,
       [...this.layers, new Env(vars)],
@@ -199,19 +199,12 @@ export class DockerImage implements Codegen {
     );
   }
 
-  codegen(): string {
-    return [
-      `FROM ${this.source} AS ${this.name}`,
-      ...this.layers.map((layer) => layer.codegen()),
-    ].join("\n");
-  }
-
   saveArtifact(fileName: string): Artifact {
     return new Artifact(this, fileName);
   }
 
-  copyArtifact(artifact: Artifact, destination: string): DockerImage {
-    return new DockerImage(
+  copyArtifact(artifact: Artifact, destination: string): Image {
+    return new Image(
       this.name,
       this.source,
       [
@@ -221,13 +214,20 @@ export class DockerImage implements Codegen {
       [...this.dependencies, artifact.source]
     );
   }
+
+  codegen(): string {
+    return [
+      `FROM ${this.source} AS ${this.name}`,
+      ...this.layers.map((layer) => layer.codegen()),
+    ].join("\n");
+  }
 }
 
 export class Artifact {
-  source: DockerImage;
+  source: Image;
   fileName: string;
 
-  constructor(source: DockerImage, fileName: string) {
+  constructor(source: Image, fileName: string) {
     this.source = source;
     this.fileName = fileName;
   }

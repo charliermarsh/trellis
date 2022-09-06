@@ -1,11 +1,11 @@
-import { DockerImage } from "./image";
+import { Image } from "./image.js";
 
 /**
  * Perform a pre-order traversal.
  */
-function preorderTraversal(root: DockerImage): DockerImage[] {
-  const stack: DockerImage[] = [root];
-  const traversed: DockerImage[] = [];
+function preorderTraversal(root: Image): Image[] {
+  const stack: Image[] = [root];
+  const traversed: Image[] = [];
 
   let current;
   while (stack.length) {
@@ -17,7 +17,7 @@ function preorderTraversal(root: DockerImage): DockerImage[] {
   return traversed;
 }
 
-export function solve(root: DockerImage): string {
+export function solve(root: Image): string {
   const images = preorderTraversal(root).reverse();
   return [
     "#syntax=docker/dockerfile:experimental",
