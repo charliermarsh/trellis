@@ -1,111 +1,22 @@
-import { customAlphabet } from 'nanoid'
+import { Codegen } from "./codegen.js";
+import { AptInstall } from "./commands.js";
+import {
+  Arg,
+  Cmd,
+  Copy,
+  Entrypoint,
+  Env,
+  Expose,
+  Label,
+  Run,
+  Shell,
+  User,
+  Volume,
+  WorkDir,
+} from "./instructions.js";
+import { EnvVars } from "./types.js";
 
-const nanoid = customAlphabet('1234567890abcdef', 10)
-
-type EnvVars = { [K: string]: string | number };
-
-export interface Codegen {
-  codegen(): string;
-}
-
-export class AptInstall implements Codegen {
-  dependencies: string[];
-
-  constructor(dependencies: string[]) {
-    this.dependencies = dependencies;
-  }
-
-  codegen(): string {
-    return `RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \\
-    --mount=type=cache,sharing=locked,target=/var/lib/apt \\
-      apt-get update \\
-      && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \\
-        ${this.dependencies.sort().join(" ")}`;
-  }
-}
-
-export class Run implements Codegen {
-  sh: string;
-
-  constructor(sh: string) {
-    this.sh = sh;
-  }
-
-  codegen(): string {
-    return `RUN ${this.sh}`;
-  }
-}
-
-export class Cmd implements Codegen {
-  instruction: string | string[];
-
-  constructor(instruction: string | string[]) {
-    this.instruction = instruction;
-  }
-
-  codegen(): string {
-    return typeof this.instruction === "string"
-      ? `CMD ${this.instruction}`
-      : `CMD ${JSON.stringify(this.instruction)}`;
-  }
-}
-
-export class WorkDir implements Codegen {
-  dirName: string;
-
-  constructor(dirName: string) {
-    this.dirName = dirName;
-  }
-
-  codegen(): string {
-    return `WORKDIR ${this.dirName}`;
-  }
-}
-
-export class Copy implements Codegen {
-  source: string;
-  destination: string;
-  from?: Image;
-
-  constructor(source: string, destination: string, from?: Image) {
-    this.source = source;
-    this.destination = destination;
-    this.from = from;
-  }
-
-  codegen(): string {
-    return this.from
-      ? `COPY --from=${this.from.name} ${this.source} ${this.destination}`
-      : `COPY ${this.source} ${this.destination}`;
-  }
-}
-
-export class Expose implements Codegen {
-  port: number;
-
-  constructor(port: number) {
-    this.port = port;
-  }
-
-  codegen(): string {
-    return `EXPOSE ${this.port}`;
-  }
-}
-
-export class Env implements Codegen {
-  vars: EnvVars;
-
-  constructor(vars: EnvVars) {
-    this.vars = vars;
-  }
-
-  codegen(): string {
-    return Object.entries(this.vars)
-      .sort()
-      .map(([key, value]) => `ENV ${key} ${value}`)
-      .join("\n");
-  }
-}
+let counter = 0;
 
 export class Image implements Codegen {
   name: string;
@@ -126,10 +37,10 @@ export class Image implements Codegen {
   }
 
   static from(source: string): Image {
-    return new Image(`stage-${nanoid()}`, source, [], []);
+    return new Image(`stage-${counter++}`, source, [], []);
   }
 
-  customLayer(layer: Codegen): Image {
+  with(layer: Codegen): Image {
     return new Image(
       this.name,
       this.source,
@@ -138,69 +49,67 @@ export class Image implements Codegen {
     );
   }
 
-  aptInstall(dependencies: string[]): Image {
-    return new Image(
-      this.name,
-      this.source,
-      [...this.layers, new AptInstall(dependencies)],
-      this.dependencies
-    );
-  }
-
-  workDir(dirName: string): Image {
-    return new Image(
-      this.name,
-      this.source,
-      [...this.layers, new WorkDir(dirName)],
-      this.dependencies
-    );
-  }
-
+  /**
+   * Instructions.
+   */
   run(sh: string): Image {
-    return new Image(
-      this.name,
-      this.source,
-      [...this.layers, new Run(sh)],
-      this.dependencies
-    );
+    return this.with(new Run(sh));
   }
 
   cmd(instruction: string | string[]): Image {
-    return new Image(
-      this.name,
-      this.source,
-      [...this.layers, new Cmd(instruction)],
-      this.dependencies
-    );
+    return this.with(new Cmd(instruction));
   }
 
-  copy(source: string, destination: string): Image {
-    return new Image(
-      this.name,
-      this.source,
-      [...this.layers, new Copy(source, destination)],
-      this.dependencies
-    );
+  label(vars: EnvVars): Image {
+    return this.with(new Label(vars));
   }
 
   expose(port: number): Image {
-    return new Image(
-      this.name,
-      this.source,
-      [...this.layers, new Expose(port)],
-      this.dependencies
-    );
+    return this.with(new Expose(port));
   }
 
   env(vars: EnvVars): Image {
-    return new Image(
-      this.name,
-      this.source,
-      [...this.layers, new Env(vars)],
-      this.dependencies
-    );
+    return this.with(new Env(vars));
   }
 
+  copy(source: string, destination: string): Image {
+    return this.with(new Copy(source, destination));
+  }
+
+  entrypoint(instruction: string | string[]): Image {
+    return this.with(new Entrypoint(instruction));
+  }
+
+  volume(instruction: string | string[]): Image {
+    return this.with(new Volume(instruction));
+  }
+
+  user(name: string, group?: string): Image {
+    return this.with(new User(name, group));
+  }
+
+  workDir(dirName: string): Image {
+    return this.with(new WorkDir(dirName));
+  }
+
+  arg(name: string, defaultValue?: string | number): Image {
+    return this.with(new Arg(name, defaultValue));
+  }
+
+  shell(instruction: string[]): Image {
+    return this.with(new Shell(instruction));
+  }
+
+  /**
+   * Custom layers.
+   */
+  aptInstall(dependencies: string[]): Image {
+    return this.with(new AptInstall(dependencies));
+  }
+
+  /**
+   * Artifact API.
+   */
   saveArtifact(fileName: string): Artifact {
     return new Artifact(this, fileName);
   }
@@ -217,6 +126,9 @@ export class Image implements Codegen {
     );
   }
 
+  /**
+   * Codegen API.
+   */
   codegen(): string {
     return [
       `FROM ${this.source} AS ${this.name}`,
