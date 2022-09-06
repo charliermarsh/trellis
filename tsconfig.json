@@ -4,7 +4,8 @@
     "module": "esnext",
     "target": "esnext",
     "types": ["bun-types"],
-    "allowJs": true
+    "allowJs": true,
+    "noEmit": true
   },
   "exclude": ["src"]
 }
