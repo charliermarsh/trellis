@@ -1,6 +1,6 @@
 #syntax=docker/dockerfile:experimental
 
-FROM ubuntu:20.04 AS stage-0f903578-2c17-4676-be5f-322d0445ab9d
+FROM ubuntu:20.04 AS stage-b45a6982a1
 WORKDIR /root
 RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
     --mount=type=cache,sharing=locked,target=/var/lib/apt \
@@ -14,7 +14,7 @@ COPY ./Cargo.lock ./Cargo.lock
 COPY ./src ./src
 RUN --mount=type=cache,sharing=locked,target=/root/.cargo/registry cargo build --release
 
-FROM ubuntu:20.04 AS stage-407e0f63-556b-4b34-8932-62fb852c9166
+FROM ubuntu:20.04 AS stage-d8f0511d0b
 WORKDIR /root
 RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
     --mount=type=cache,sharing=locked,target=/var/lib/apt \
@@ -25,5 +25,5 @@ EXPOSE 8000
 ENV ROCKET_ADDRESS 0.0.0.0
 ENV ROCKET_CLI_COLORS 0
 ENV ROCKET_PORT 8080
-COPY --from=stage-0f903578-2c17-4676-be5f-322d0445ab9d /root/target/release/hello-rocket ./bin
+COPY --from=stage-b45a6982a1 /root/target/release/hello-rocket ./bin
 CMD ["./bin"]
