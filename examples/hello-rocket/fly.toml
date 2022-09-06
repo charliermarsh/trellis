@@ -7,7 +7,7 @@ kill_timeout = 5
 processes = []
 
 [build]
-  dockerfile = "Generated.Dockerfile"
+  dockerfile = "build/Dockerfile"
 
 [env]
 

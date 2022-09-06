@@ -20,7 +20,7 @@ function preorderTraversal(root: Image): Image[] {
 export function solve(root: Image): string {
   const images = preorderTraversal(root).reverse();
   return [
-    "#syntax=docker/dockerfile:experimental",
+    "#syntax=docker/dockerfile:1.4",
     ...images.map((image) => image.codegen()),
   ].join("\n\n");
 }
