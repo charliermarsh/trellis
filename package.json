@@ -1,1 +1,10 @@
-{ "dependencies": { "prettier": "^2.7.1" } }
+{
+  "dependencies": {
+    "bun-types": "^0.1.10",
+    "prettier": "^2.7.1"
+  },
+  "scripts": {
+    "preview": "bun run main.ts | bat --file-name Dockerfile --language Dockerfile",
+    "build": "bun run main.ts > Dockerfile"
+  }
+}

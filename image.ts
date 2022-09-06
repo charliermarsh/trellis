@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import * as crypto from "crypto";
 
 type EnvVars = { [K: string]: string | number };
 
