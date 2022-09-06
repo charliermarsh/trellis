@@ -43,8 +43,8 @@ export class Cmd implements Codegen {
 
   codegen(): string {
     return typeof this.instruction === "string"
-      ? `RUN ${this.instruction}`
-      : `RUN ${JSON.stringify(this.instruction)}`;
+      ? `CMD ${this.instruction}`
+      : `CMD ${JSON.stringify(this.instruction)}`;
   }
 }
 
@@ -127,7 +127,7 @@ export class DockerImage implements Codegen {
     return new DockerImage("stage-" + crypto.randomUUID(), source, [], []);
   }
 
-  addLayer(layer: Codegen): DockerImage {
+  customLayer(layer: Codegen): DockerImage {
     return new DockerImage(
       this.name,
       this.source,

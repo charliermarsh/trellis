@@ -1,6 +1,6 @@
 import { solve } from "./buildkit";
 import { DockerImage } from "./image";
-import { Cargo, InstallRustToolchain } from "./layers";
+import { RunCargo, InstallRustToolchain } from "./layers";
 
 const binary = DockerImage.from("ubuntu:20.04")
   .workDir("/root")
@@ -12,9 +12,11 @@ const binary = DockerImage.from("ubuntu:20.04")
     "pkg-config",
     "software-properties-common",
   ])
-  .addLayer(new InstallRustToolchain("1.63.0"))
-  .copy("./", "./")
-  .addLayer(new Cargo("build --release"))
+  .customLayer(new InstallRustToolchain("1.63.0"))
+  .copy("./Cargo.toml", "./Cargo.toml")
+  .copy("./Cargo.lock", "./Cargo.lock")
+  .copy("./src", "./src")
+  .customLayer(new RunCargo("build --release"))
   .saveArtifact("/root/target/release/hello-rocket");
 
 const appStage = DockerImage.from("ubuntu:20.04")
@@ -29,4 +31,4 @@ const appStage = DockerImage.from("ubuntu:20.04")
   .copyArtifact(binary, "./bin")
   .cmd(["./bin"]);
 
-console.log(solve([appStage]));
+console.log(solve(appStage));

@@ -1,10 +1,13 @@
-# fly.toml file generated for restless-darkness-3615 on 2022-09-05T13:39:38-04:00
+# fly.toml file generated for summer-sun-9294 on 2022-09-06T11:29:03-04:00
 
-app = "restless-darkness-3615"
+app = "summer-sun-9294"
 
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = []
+
+[build]
+  dockerfile = "Generated.Dockerfile"
 
 [env]
 

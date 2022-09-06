@@ -20,7 +20,7 @@ export class InstallRustToolchain implements Codegen {
   }
 }
 
-export class Cargo implements Codegen {
+export class RunCargo implements Codegen {
   subCommand: string;
 
   constructor(subCommand: string) {
