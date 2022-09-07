@@ -1,0 +1,15 @@
+{
+  "name": "@spring/root",
+  "private": true,
+  "scripts": {
+    "tsc": "tsc --build tsconfig.build.json"
+  },
+  "devDependencies": {
+    "prettier": "2.7.1",
+    "typescript": "4.6.4"
+  },
+  "workspaces": [
+    "app",
+    "packages/core"
+  ]
+}
