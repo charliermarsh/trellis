@@ -1,6 +1,7 @@
 {
+  "type": "module",
   "dependencies": {
-    "typekit": "file:../../../typekit/lib"
+    "typekit": "file:../../../typekit/src"
   },
   "scripts": {
     "preview": "bun run build.ts | bat --file-name Dockerfile --language Dockerfile",
