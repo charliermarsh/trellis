@@ -5,9 +5,7 @@
     "skipLibCheck": true,
     "target": "esnext",
     "allowJs": false,
-    "declaration": true,
-    "composite": true,
-    "incremental": true,
-    "rootDir": "src"
-  }
+    "rootDir": "."
+  },
+  "references": [{ "path": "../../../typekit" }]
 }

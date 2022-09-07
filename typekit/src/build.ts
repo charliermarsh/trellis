@@ -1,8 +1,4 @@
-import {
-  Image,
-  InstallRustToolchain,
-  RunCargo,
-} from "../../../typekit/src/index.js";
+import { Image, InstallRustToolchain, RunCargo, solve } from "./index.js";
 
 const UBUNTU_VERSION = "20.04";
 const RUST_VERSION = "1.63.0";
@@ -37,4 +33,4 @@ const appStage = Image.from(`ubuntu:${UBUNTU_VERSION}`)
   .copyArtifact(binary, "./bin")
   .cmd(["./bin"]);
 
-export { buildStage as build, appStage as app };
+console.log(solve(appStage));
