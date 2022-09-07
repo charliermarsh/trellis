@@ -2,12 +2,16 @@
   "name": "@demo/core",
   "version": "0.0.1",
   "dependencies": {
-    "prettier": "2.7.1",
+    "@typescript-eslint/eslint-plugin": "^5.30.6",
+    "@typescript-eslint/parser": "^5.30.6",
+    "eslint": "^7.32.0",
+    "prettier": "^2.7.1",
     "typescript": "4.6.4"
   },
   "scripts": {
-    "check": "prettier --check .",
-    "format": "prettier --cache -w .",
-    "tsc": "tsc --build tsconfig.json"
+    "check-format": "prettier --check .",
+    "check-lint": "eslint --cache --ext .ts src",
+    "check-types": "tsc --build tsconfig.json",
+    "format": "prettier --cache -w ."
   }
 }

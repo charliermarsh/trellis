@@ -37,8 +37,13 @@ export class Image implements Codegen {
     this.dependencies = dependencies;
   }
 
-  static from(source: string): Image {
-    return new Image(`stage-${counter++}`, source, [], []);
+  static from(source: string | Image): Image {
+    return new Image(
+      `stage-${counter++}`,
+      typeof source === "string" ? source : source.name,
+      [],
+      typeof source === "string" ? [] : [source]
+    );
   }
 
   with(layer: Codegen): Image {

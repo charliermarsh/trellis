@@ -1,5 +1,6 @@
 import { solve } from "./buildkit.js";
 import { Image } from "./image.js";
+import { Task } from "./task.js";
 import { Command, Cargo, InstallRustToolchain } from "./commands.js";
 import {
   Arg,
@@ -30,6 +31,7 @@ export {
   Run,
   Cargo,
   Shell,
+  Task,
   User,
   Volume,
   WorkDir,
