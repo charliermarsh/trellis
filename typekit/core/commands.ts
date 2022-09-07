@@ -1,5 +1,5 @@
-import { Codegen } from "./codegen.js";
-import { Env, Run } from "./instructions.js";
+import { Codegen } from "./codegen.ts";
+import { Env, Run } from "./instructions.ts";
 
 class Command implements Codegen {
   instructions: Codegen[];
@@ -17,7 +17,7 @@ export class InstallRustToolchain extends Command {
   constructor(version: string) {
     super([
       new Run(
-        `curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain ${version}`
+        `curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain ${version}`,
       ),
       // TODO(charlie): Each layer might need access to the current directory? We use /root here.
       new Env({ PATH: "$PATH:/root/.cargo/bin" }),
@@ -43,9 +43,11 @@ export class AptInstall extends Command {
   constructor(dependencies: string[]) {
     super([
       new Run(
-        `apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${dependencies
-          .sort()
-          .join(" ")}`,
+        `apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${
+          dependencies
+            .sort()
+            .join(" ")
+        }`,
         [
           {
             type: "cache",
@@ -57,7 +59,7 @@ export class AptInstall extends Command {
             target: "/var/lib/apt",
             sharing: "locked",
           },
-        ]
+        ],
       ),
     ]);
   }

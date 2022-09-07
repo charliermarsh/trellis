@@ -1,4 +1,4 @@
-import { Image } from "./image.js";
+import { Image } from "./image.ts";
 
 /**
  * Perform a pre-order traversal.
@@ -7,11 +7,13 @@ function preorderTraversal(root: Image): Image[] {
   const stack: Image[] = [root];
   const traversed: Image[] = [];
 
-  let current;
+  let current: Image | undefined;
   while (stack.length) {
     current = stack.pop();
-    traversed.push(current);
-    stack.push(...current.dependencies);
+    if (current != null) {
+      traversed.push(current);
+      stack.push(...current.dependencies);
+    }
   }
 
   return traversed;

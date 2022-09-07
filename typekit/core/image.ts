@@ -1,5 +1,5 @@
-import { Codegen } from "./codegen.js";
-import { AptInstall } from "./commands.js";
+import { Codegen } from "./codegen.ts";
+import { AptInstall } from "./commands.ts";
 import {
   Arg,
   Cmd,
@@ -13,8 +13,8 @@ import {
   User,
   Volume,
   WorkDir,
-} from "./instructions.js";
-import { EnvVars } from "./types.js";
+} from "./instructions.ts";
+import { EnvVars } from "./types.ts";
 
 let counter = 0;
 
@@ -28,7 +28,7 @@ export class Image implements Codegen {
     name: string,
     source: string,
     layers: Codegen[],
-    dependencies: Image[]
+    dependencies: Image[],
   ) {
     this.name = name;
     this.source = source;
@@ -45,7 +45,7 @@ export class Image implements Codegen {
       this.name,
       this.source,
       [...this.layers, layer],
-      this.dependencies
+      this.dependencies,
     );
   }
 
@@ -122,7 +122,7 @@ export class Image implements Codegen {
         ...this.layers,
         new Copy(artifact.fileName, destination, artifact.source),
       ],
-      [...this.dependencies, artifact.source]
+      [...this.dependencies, artifact.source],
     );
   }
 
