@@ -1,0 +1,13 @@
+{
+  "name": "@demo/core",
+  "version": "0.0.1",
+  "dependencies": {
+    "prettier": "2.7.1",
+    "typescript": "4.6.4"
+  },
+  "scripts": {
+    "check": "prettier --check .",
+    "format": "prettier --cache -w .",
+    "tsc": "tsc --build tsconfig.json"
+  }
+}

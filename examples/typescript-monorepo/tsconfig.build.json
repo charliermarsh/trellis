@@ -1,0 +1,12 @@
+{
+  "files": [],
+  // [TypeScript workspaces.]
+  "references": [
+    {
+      "path": "app"
+    },
+    {
+      "path": "packages/core"
+    }
+  ]
+}

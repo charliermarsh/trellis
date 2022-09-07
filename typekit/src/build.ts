@@ -1,4 +1,4 @@
-import { Image, InstallRustToolchain, RunCargo, solve } from "./index.js";
+import { Image, InstallRustToolchain, Cargo, solve } from "./index.js";
 
 const UBUNTU_VERSION = "20.04";
 const RUST_VERSION = "1.63.0";
@@ -17,7 +17,7 @@ const buildStage = Image.from(`ubuntu:${UBUNTU_VERSION}`)
   .copy("./Cargo.toml", "./Cargo.toml")
   .copy("./Cargo.lock", "./Cargo.lock")
   .copy("./src", "./src")
-  .with(new RunCargo("build --release"));
+  .with(new Cargo("build --release"));
 
 const binary = buildStage.saveArtifact("/root/target/release/hello-rocket");
 
