@@ -17,7 +17,6 @@ export function serialize(mount: Mount): string {
     case "cache": {
       const { from, gid, id, mode, readOnly, sharing, source, target, uid } =
         mount;
-
       return [
         `type=cache`,
         `target=${target}`,

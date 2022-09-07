@@ -3,15 +3,19 @@
   "version": "0.0.1",
   "type": "module",
   "exports": "./lib/index.js",
+  "bin": {
+    "typekit": "./lib/cli.js"
+  },
   "engines": {
     "node": ">=14.16"
   },
   "dependencies": {
     "bun-types": "^0.1.10",
+    "chalk": "^5.0.1",
     "prettier": "^2.7.1",
     "typescript": "^4.8.2"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc && chmod +x lib/cli.js"
   }
 }

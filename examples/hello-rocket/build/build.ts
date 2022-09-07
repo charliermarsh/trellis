@@ -1,6 +1,9 @@
-import { Image, InstallRustToolchain, RunCargo, solve } from "typekit";
+import { Image, InstallRustToolchain, RunCargo } from "typekit";
 
-const binary = Image.from("ubuntu:20.04")
+const UBUNTU_VERSION = "20.04";
+const RUST_VERSION = "1.63.0";
+
+const buildStage = Image.from(`ubuntu:${UBUNTU_VERSION}`)
   .workDir("/root")
   .aptInstall([
     "build-essential",
@@ -10,14 +13,15 @@ const binary = Image.from("ubuntu:20.04")
     "pkg-config",
     "software-properties-common",
   ])
-  .with(new InstallRustToolchain("1.63.0"))
+  .with(new InstallRustToolchain(RUST_VERSION))
   .copy("./Cargo.toml", "./Cargo.toml")
   .copy("./Cargo.lock", "./Cargo.lock")
   .copy("./src", "./src")
-  .with(new RunCargo("build --release"))
-  .saveArtifact("/root/target/release/hello-rocket");
+  .with(new RunCargo("build --release"));
 
-const appStage = Image.from("ubuntu:20.04")
+const binary = buildStage.saveArtifact("/root/target/release/hello-rocket");
+
+const appStage = Image.from(`ubuntu:${UBUNTU_VERSION}`)
   .workDir("/root")
   .aptInstall(["ca-certificates"])
   .expose(8000)
@@ -29,4 +33,4 @@ const appStage = Image.from("ubuntu:20.04")
   .copyArtifact(binary, "./bin")
   .cmd(["./bin"]);
 
-console.log(solve(appStage));
+export { buildStage as build, appStage as app };
