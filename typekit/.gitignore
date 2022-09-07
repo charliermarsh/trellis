@@ -2,7 +2,8 @@
 .idea
 
 # Generated files
-lib
+src/*.js
+src/*.d.ts
 
 # Logs
 logs
