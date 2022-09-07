@@ -14,6 +14,7 @@ import {
   Volume,
   WorkDir,
 } from "./instructions.js";
+import { Mount } from "./mount.js";
 import { EnvVars } from "./types.js";
 
 let counter = 0;
@@ -52,8 +53,8 @@ export class Image implements Codegen {
   /**
    * Instructions.
    */
-  run(sh: string): Image {
-    return this.with(new Run(sh));
+  run(sh: string, mount?: Mount[]): Image {
+    return this.with(new Run(sh, mount));
   }
 
   cmd(instruction: string | string[]): Image {

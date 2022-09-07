@@ -1,7 +1,7 @@
 import { Codegen } from "./codegen.js";
 import { Env, Run } from "./instructions.js";
 
-class Command implements Codegen {
+export class Command implements Codegen {
   instructions: Codegen[];
 
   constructor(instructions: Codegen[]) {
@@ -25,7 +25,7 @@ export class InstallRustToolchain extends Command {
   }
 }
 
-export class RunCargo extends Command {
+export class Cargo extends Command {
   constructor(command: string) {
     super([
       new Run(`cargo ${command}`, [
