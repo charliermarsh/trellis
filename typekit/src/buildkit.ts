@@ -2,11 +2,6 @@ import toposort from "toposort";
 import { Image } from "./image.js";
 import { Task } from "./task.js";
 
-/**
- * Perform a pre-order traversal.
- *
- * TODO(charlie): This doesn't do the right thing. Replace with a topological sort.
- */
 function preorderTraversal(root: Image): Image[] {
   const stack: Image[] = [root];
   const traversed: Image[] = [];
