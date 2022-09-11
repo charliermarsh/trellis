@@ -50,7 +50,7 @@ async function ls(file: string) {
   }
 }
 
-async function build(file: string, target?: string) {
+async function preview(file: string, target?: string) {
   const module = await loadModule(file);
   if (module == null) {
     return;
@@ -77,10 +77,50 @@ async function build(file: string, target?: string) {
   console.log(solve(exportedTarget));
 }
 
+async function build(file: string, target?: string) {
+  const module = await loadModule(file);
+  if (module == null) {
+    return;
+  }
+
+  const exportedTarget = module[target || "default"];
+  if (exportedTarget == null) {
+    if (target) {
+      console.error(
+        `${chalk.red(chalk.bold("error"))}: ${chalk.white(
+          `Export \`${target}\` not found in ${file}`
+        )}`
+      );
+    } else {
+      console.error(
+        `${chalk.red(chalk.bold("error"))}: ${chalk.white(
+          `No default export found in ${file}`
+        )}`
+      );
+    }
+    return;
+  }
+
+  //
+
+  console.log(solve(exportedTarget));
+}
+
 async function main() {
   const program = new Command("typekit");
   program.usage("-f typekit.ts");
   program.version("0.0.1");
+
+  program
+    .command("preview")
+    .description("Preview a Dockerfile")
+    .requiredOption(
+      "-f, --file <FILE>",
+      "path to local TypeKit file (default: build.ts)",
+      "build.ts"
+    )
+    .option("-t, --target <TARGET>", "target to build within the TypeKit file")
+    .action((options) => preview(options.file, options.target));
 
   program
     .command("build")

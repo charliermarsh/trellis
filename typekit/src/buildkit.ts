@@ -31,8 +31,14 @@ function topologicalSort(images: Image[]): Image[] {
     }
   }
 
-  const sorted = toposort(edges);
-  return sorted.map((imageName) => imageByName[imageName]);
+  const sorted = toposort(edges).map((imageName) => imageByName[imageName]);
+  const excluded = [];
+  for (const image of images) {
+    if (!sorted.includes(image)) {
+      excluded.push(image);
+    }
+  }
+  return [...excluded, ...sorted];
 }
 
 export function solve(root: Image | Task): string {
