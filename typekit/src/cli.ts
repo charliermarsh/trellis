@@ -8,8 +8,12 @@ import * as Module from "module";
 import * as path from "path";
 import { temporaryFile } from "tempy";
 import { solve } from "./buildkit.js";
+import { build } from "./docker";
 import { Image } from "./image.js";
 
+/**
+ * Load a TypeScript module.
+ */
 async function loadModule(file: string): Promise<Module | null> {
   const buildFile = path.join(process.cwd(), file);
   if (!fs.existsSync(buildFile)) {
@@ -35,7 +39,10 @@ async function loadModule(file: string): Promise<Module | null> {
   }
 }
 
-async function ls(file: string) {
+/**
+ * List the buildable targets in a typekit file.
+ */
+async function lsCommand(file: string) {
   const module = await loadModule(file);
   if (module == null) {
     return;
@@ -52,7 +59,10 @@ async function ls(file: string) {
   }
 }
 
-async function preview(file: string, target?: string) {
+/**
+ * Preview the Dockerfile for a buildable target defined in a typekit file.
+ */
+async function previewCommand(file: string, target?: string) {
   const module = await loadModule(file);
   if (module == null) {
     return;
@@ -76,10 +86,14 @@ async function preview(file: string, target?: string) {
     return;
   }
 
+  // Print out the resolved Dockerfile.
   console.log(solve(exportedTarget));
 }
 
-async function build(file: string, target?: string) {
+/**
+ * Build a target defined in a typekit file.
+ */
+async function buildCommand(file: string, target?: string) {
   const module = await loadModule(file);
   if (module == null) {
     return;
@@ -103,16 +117,13 @@ async function build(file: string, target?: string) {
     return;
   }
 
-  const dockerfilePath = temporaryFile({ name: "Dockerfile" });
-  fs.writeFileSync(dockerfilePath, solve(exportedTarget));
-
   // Build the Docker image.
-  const tag = `${target}:latest`;
-  spawn("docker", ["build", "-t", tag, "-f", dockerfilePath, ".."], {
-    stdio: "inherit",
-  });
+  await build(exportedTarget);
 }
 
+/**
+ * Entrypoint to the typekit CLI.
+ */
 async function main() {
   const program = new Command("typekit");
   program.usage("-f typekit.ts");
@@ -127,7 +138,7 @@ async function main() {
       "build.ts"
     )
     .option("-t, --target <TARGET>", "target to build within the TypeKit file")
-    .action((options) => preview(options.file, options.target));
+    .action((options) => previewCommand(options.file, options.target));
 
   program
     .command("build")
@@ -138,7 +149,7 @@ async function main() {
       "build.ts"
     )
     .option("-t, --target <TARGET>", "target to build within the TypeKit file")
-    .action((options) => build(options.file, options.target));
+    .action((options) => buildCommand(options.file, options.target));
 
   program
     .command("ls")
@@ -148,9 +159,9 @@ async function main() {
       "path to local TypeKit file (default: build.ts)",
       "build.ts"
     )
-    .action((options) => ls(options.file));
+    .action((options) => lsCommand(options.file));
 
   await program.parseAsync(process.argv);
 }
 
-main();
+await main();
