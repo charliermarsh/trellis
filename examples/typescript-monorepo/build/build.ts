@@ -1,4 +1,4 @@
-import { Image, Command, Run } from "../../../typekit/src/index.js";
+import { Command, Image, Run } from "../../../typekit/src/index.js";
 
 class NPM extends Command {
   constructor(command: string) {
@@ -16,7 +16,7 @@ class NPM extends Command {
 const NODE_VERSION = "18";
 const WORKSPACES = ["app", "packages/core"];
 
-let buildStage = Image.from(`node:${NODE_VERSION}`)
+let definition = Image.from(`node:${NODE_VERSION}`)
   .workDir("/root")
   // Copy over monorepo root configuration files.
   .copy("./tsconfig.build.json", "./")
@@ -25,18 +25,18 @@ let buildStage = Image.from(`node:${NODE_VERSION}`)
 
 // Copy over workspace configuration files.
 for (const workspace of WORKSPACES) {
-  buildStage = buildStage.copy(
+  definition = definition.copy(
     `./${workspace}/package.json`,
     `./${workspace}/package.json`
   );
 }
 
 // Install dependencies.
-buildStage = buildStage.with(new NPM("ci"));
+definition = definition.with(new NPM("ci"));
 
 // Copy over workspace contents.
 for (const workspace of WORKSPACES) {
-  buildStage = buildStage.copy(`./${workspace}`, `./${workspace}`);
+  definition = definition.copy(`./${workspace}`, `./${workspace}`);
 }
 
-export { buildStage as build };
+export default definition;

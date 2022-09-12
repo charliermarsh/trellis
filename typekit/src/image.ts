@@ -152,3 +152,11 @@ export class Artifact {
     this.fileName = fileName;
   }
 }
+
+export class BuiltImage {
+  tag: string;
+
+  constructor(tag: string) {
+    this.tag = tag;
+  }
+}

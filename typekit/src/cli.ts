@@ -1,10 +1,12 @@
 #!/usr/bin/env ts-node-script --esm
 
 import chalk from "chalk";
+import { spawn } from "child_process";
 import { Command } from "commander";
 import * as fs from "fs";
 import * as Module from "module";
 import * as path from "path";
+import { temporaryFile } from "tempy";
 import { solve } from "./buildkit.js";
 import { Image } from "./image.js";
 
@@ -101,9 +103,14 @@ async function build(file: string, target?: string) {
     return;
   }
 
-  //
+  const dockerfilePath = temporaryFile({ name: "Dockerfile" });
+  fs.writeFileSync(dockerfilePath, solve(exportedTarget));
 
-  console.log(solve(exportedTarget));
+  // Build the Docker image.
+  const tag = `${target}:latest`;
+  spawn("docker", ["build", "-t", tag, "-f", dockerfilePath, ".."], {
+    stdio: "inherit",
+  });
 }
 
 async function main() {

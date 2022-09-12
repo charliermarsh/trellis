@@ -1,4 +1,4 @@
-import { Image, InstallRustToolchain, Cargo, solve } from "./index.js";
+import { Cargo, Image, InstallRustToolchain, solve } from "./index.js";
 
 const UBUNTU_VERSION = "20.04";
 const RUST_VERSION = "1.63.0";

@@ -1,6 +1,5 @@
 import toposort from "toposort";
 import { Image } from "./image.js";
-import { Task } from "./task.js";
 
 function preorderTraversal(root: Image): Image[] {
   const stack: Image[] = [root];
@@ -41,22 +40,11 @@ function topologicalSort(images: Image[]): Image[] {
   return [...excluded, ...sorted];
 }
 
-export function solve(root: Image | Task): string {
-  if (root instanceof Image) {
-    const images = topologicalSort(preorderTraversal(root));
+export function solve(root: Image): string {
+  const images = topologicalSort(preorderTraversal(root));
 
-    return [
-      "#syntax=docker/dockerfile:1.4",
-      ...images.map((image) => image.codegen()),
-    ].join("\n\n");
-  }
-
-  if (root instanceof Task) {
-    const images = topologicalSort(preorderTraversal(root.image));
-    return [
-      "#syntax=docker/dockerfile:1.4",
-      ...images.map((image) => image.codegen()),
-      root.codegen(),
-    ].join("\n\n");
-  }
+  return [
+    "#syntax=docker/dockerfile:1.4",
+    ...images.map((image) => image.codegen()),
+  ].join("\n\n");
 }
