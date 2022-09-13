@@ -4,7 +4,7 @@ import { NPM } from "./commands.ts";
 const NODE_VERSION = "18";
 const WORKSPACES = ["app", "packages/core"];
 
-let definition = Image.from(`node:${NODE_VERSION}`)
+let buildStage = Image.from(`node:${NODE_VERSION}`)
   .workDir("/root")
   // Copy over monorepo root configuration files.
   .copy("./tsconfig.build.json", "./")
@@ -13,18 +13,18 @@ let definition = Image.from(`node:${NODE_VERSION}`)
 
 // Copy over workspace configuration files.
 for (const workspace of WORKSPACES) {
-  definition = definition.copy(
+  buildStage = buildStage.copy(
     `./${workspace}/package.json`,
     `./${workspace}/package.json`,
   );
 }
 
 // Install dependencies.
-definition = definition.with(new NPM("ci"));
+buildStage = buildStage.with(new NPM("ci"));
 
 // Copy over workspace contents.
 for (const workspace of WORKSPACES) {
-  definition = definition.copy(`./${workspace}`, `./${workspace}`);
+  buildStage = buildStage.copy(`./${workspace}`, `./${workspace}`);
 }
 
-export default definition;
+export default buildStage;

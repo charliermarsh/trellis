@@ -1,32 +1,39 @@
-import { build, run, Task } from "../../../typekit/index.ts";
-import definition from "./build.ts";
-import { WebClient } from "https://deno.land/x/slack_web_api/mod.js";
 import "https://deno.land/x/dotenv/load.ts";
+import { WebClient } from "https://deno.land/x/slack_web_api/mod.js";
+import { build, Image, run } from "../../../typekit/index.ts";
+import buildStage from "./build.ts";
 
 export async function runChecks() {
-  const web = new WebClient(Deno.env.get("SLACK_TOKEN"));
-  await web.chat.postMessage({
-    text: "Hello world!",
-    channel: "#alerts",
-  });
+  const image = await build(buildStage, "typekit:latest");
 
-  const image = await build(definition);
-
-  const checkFormat = new Task(["npm", "run", "check-format", "--workspaces"]);
-  const checkTypes = new Task(["npm", "run", "check-types", "--workspaces"]);
-  const checkLint = new Task(["npm", "run", "check-lint", "--workspaces"]);
+  const checkFormat = Image.from(image).run(
+    "npm run check-format --workspaces",
+  );
+  const checkTypes = Image.from(image).run("npm run check-types --workspaces");
+  const checkLint = Image.from(image).run("npm run check-lint --workspaces");
 
   const result: Deno.ProcessStatus[] = await Promise.all([
-    run(checkFormat, image),
-    run(checkTypes, image),
-    run(checkLint, image),
+    run(checkFormat),
+    run(checkTypes),
+    run(checkLint),
   ]);
 
   // Post to Slack.
+  const web = new WebClient(Deno.env.get("SLACK_TOKEN"));
+
+  // TODO(charlie): What if I want to extract a build artifact, like a JUnit file or a binary?
   if (result.every((status) => status.success)) {
+    await web.chat.postMessage({
+      text: "Success!",
+      channel: "#alerts",
+    });
     console.log("Success!");
   } else {
-    console.error("Failed!");
+    await web.chat.postMessage({
+      text: "Failure!",
+      channel: "#alerts",
+    });
+    console.error("Failure!");
   }
 }
 

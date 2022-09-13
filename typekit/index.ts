@@ -16,7 +16,6 @@ import {
   Volume,
   WorkDir,
 } from "./instructions.ts";
-import { Task } from "./task.ts";
 
 export {
   Arg,
@@ -35,7 +34,6 @@ export {
   run,
   Shell,
   solve,
-  Task,
   User,
   Volume,
   WorkDir,

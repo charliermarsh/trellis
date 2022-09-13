@@ -1,29 +1,41 @@
 import { join } from "https://deno.land/std/path/mod.ts";
+import { Image } from "./image.ts";
 import { solve } from "./solver.ts";
-import { BuiltImage, Image } from "./image.ts";
-import { Task } from "./task.ts";
 
-export async function build(image: Image): Promise<BuiltImage> {
+export async function build(image: Image, tag: string): Promise<string> {
   const tempDirPath = await Deno.makeTempDir();
   const tempFilePath = join(tempDirPath, "Dockerfile");
   await Deno.writeTextFile(tempFilePath, solve(image));
 
   // Build the Docker image.
-  const tag = "typekit:latest";
   const process = Deno.run({
-    cmd: ["docker", "build", "-t", tag, "-f", tempFilePath, ".."],
+    cmd: [
+      "docker",
+      "build",
+      ...(tag ? ["-t", tag] : []),
+      "-f",
+      tempFilePath,
+      "..",
+    ],
+    env: {
+      "DOCKER_SCAN_SUGGEST": "false",
+    },
   });
   await process.status();
-  return new BuiltImage(tag);
+  return tag;
 }
 
-export async function run(
-  task: Task,
-  image: BuiltImage,
-): Promise<Deno.ProcessStatus> {
-  // Run a command within a Docker image.
+export async function run(image: Image): Promise<Deno.ProcessStatus> {
+  const tempDirPath = await Deno.makeTempDir();
+  const tempFilePath = join(tempDirPath, "Dockerfile");
+  await Deno.writeTextFile(tempFilePath, solve(image));
+
+  // Build the Docker image.
   const process = Deno.run({
-    cmd: ["docker", "run", "-t", image.tag, ...task.instruction],
+    cmd: ["docker", "build", "--quiet", "-f", tempFilePath, ".."],
+    env: {
+      "DOCKER_SCAN_SUGGEST": "false",
+    },
   });
   return await process.status();
 }

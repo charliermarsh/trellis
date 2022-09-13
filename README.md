@@ -20,11 +20,19 @@ Build a Docker image from a TypeKit build definition.
 
 ### `typekit ls`
 
-List the build and execution targets from a TypeKit file.
+List the build targets and pipelins from a TypeKit file.
 
 ### `typekit run`
 
 Run a TypeKit function.
+
+## What's missing?
+
+- `typekit run` for pipelines.
+- `typekit ls` for pipelines.
+- Instructions for running locally or on CI.
+- Ability to push images as part of a pipeline.
+- Ability to extract artifacts as part of a pipeline.
 
 ## License
 
