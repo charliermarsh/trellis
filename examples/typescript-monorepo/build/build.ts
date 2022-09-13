@@ -1,17 +1,5 @@
-import { Command, Image, Run } from "../../../typekit/src/index.js";
-
-class NPM extends Command {
-  constructor(command: string) {
-    super([
-      new Run(`npm set cache /root/.cache/npm && npm ${command}`, [
-        {
-          type: "cache",
-          target: "/root/.cache/npm",
-        },
-      ]),
-    ]);
-  }
-}
+import { Image } from "../../../typekit/index.ts";
+import { NPM } from "./commands.ts";
 
 const NODE_VERSION = "18";
 const WORKSPACES = ["app", "packages/core"];
@@ -27,7 +15,7 @@ let definition = Image.from(`node:${NODE_VERSION}`)
 for (const workspace of WORKSPACES) {
   definition = definition.copy(
     `./${workspace}/package.json`,
-    `./${workspace}/package.json`
+    `./${workspace}/package.json`,
   );
 }
 

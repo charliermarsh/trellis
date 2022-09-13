@@ -1,7 +1,7 @@
-import { solve } from "./buildkit.js";
-import { Cargo, Command, InstallRustToolchain } from "./commands.js";
-import { build, run } from "./docker.js";
-import { Image } from "./image.js";
+import { solve } from "./solver.ts";
+import { Cargo, Command, InstallRustToolchain } from "./commands.ts";
+import { build, run } from "./docker.ts";
+import { Image } from "./image.ts";
 import {
   Arg,
   Cmd,
@@ -15,11 +15,12 @@ import {
   User,
   Volume,
   WorkDir,
-} from "./instructions.js";
-import { Task } from "./task.js";
+} from "./instructions.ts";
+import { Task } from "./task.ts";
 
 export {
   Arg,
+  build,
   Cargo,
   Cmd,
   Command,
@@ -31,12 +32,11 @@ export {
   InstallRustToolchain,
   Label,
   Run,
+  run,
   Shell,
+  solve,
   Task,
   User,
   Volume,
   WorkDir,
-  build,
-  run,
-  solve,
 };

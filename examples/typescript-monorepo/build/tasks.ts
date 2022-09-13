@@ -1,36 +1,32 @@
-import { build, run, Task } from "../../../typekit/src/index.js";
-import definition from "./build.js";
-import { WebClient } from "@slack/web-api";
+import { build, run, Task } from "../../../typekit/index.ts";
+import definition from "./build.ts";
+import { WebClient } from "https://deno.land/x/slack_web_api/mod.js";
+import "https://deno.land/x/dotenv/load.ts";
 
 export async function runChecks() {
-  const web = new WebClient(process.env.SLACK_TOKEN);
+  const web = new WebClient(Deno.env.get("SLACK_TOKEN"));
+  await web.chat.postMessage({
+    text: "Hello world!",
+    channel: "#alerts",
+  });
+
   const image = await build(definition);
 
   const checkFormat = new Task(["npm", "run", "check-format", "--workspaces"]);
   const checkTypes = new Task(["npm", "run", "check-types", "--workspaces"]);
   const checkLint = new Task(["npm", "run", "check-lint", "--workspaces"]);
 
-  const result: number[] = await Promise.all([
+  const result: Deno.ProcessStatus[] = await Promise.all([
     run(checkFormat, image),
     run(checkTypes, image),
     run(checkLint, image),
   ]);
 
-  // Post a message to the channel, and await the result.
-  // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
-  const x = await web.chat.postMessage({
-    text: "Hello world!",
-    channel: "#alerts",
-  });
-
-  // The result contains an identifier for the message, `ts`.
-  console.log(`Successfully send message`);
-
   // Post to Slack.
-  if (result.some((code) => code !== 0)) {
-    console.error("Failed!");
+  if (result.every((status) => status.success)) {
+    console.log("Success!");
   } else {
-    console.error("Success!");
+    console.error("Failed!");
   }
 }
 

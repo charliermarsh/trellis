@@ -1,5 +1,5 @@
-import toposort from "toposort";
-import { Image } from "./image.js";
+import toposort from "./toposort.js";
+import { Image } from "./image.ts";
 
 function preorderTraversal(root: Image): Image[] {
   const stack: Image[] = [root];
@@ -9,6 +9,9 @@ function preorderTraversal(root: Image): Image[] {
   let current;
   while (stack.length) {
     current = stack.pop();
+    if (!current) {
+      continue;
+    }
     if (seen.has(current.name)) {
       continue;
     }
@@ -21,8 +24,8 @@ function preorderTraversal(root: Image): Image[] {
 }
 
 function topologicalSort(images: Image[]): Image[] {
-  const imageByName = {};
-  const edges = [];
+  const imageByName: { [K: string]: Image } = {};
+  const edges: [string, string][] = [];
   for (const image of images) {
     imageByName[image.name] = image;
     for (const dependency of image.dependencies) {

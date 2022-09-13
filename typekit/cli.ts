@@ -1,26 +1,25 @@
-#!/usr/bin/env ts-node-script --esm
-
-import chalk from "chalk";
-import { spawn } from "child_process";
-import { Command } from "commander";
-import * as fs from "fs";
-import * as Module from "module";
-import * as path from "path";
-import { temporaryFile } from "tempy";
-import { solve } from "./buildkit.js";
-import { build } from "./docker";
-import { Image } from "./image.js";
+#!/usr/bin/env deno
+import {
+  bold,
+  green,
+  red,
+  white,
+} from "https://deno.land/std@0.154.0/fmt/colors.ts";
+import { Command } from "https://deno.land/x/cmd@v1.2.0/commander/index.ts";
+import { existsSync } from "https://deno.land/std/fs/mod.ts";
+import { join } from "https://deno.land/std/path/mod.ts";
+import { solve } from "./solver.ts";
+import { build } from "./docker.ts";
+import { Image } from "./image.ts";
 
 /**
  * Load a TypeScript module.
  */
-async function loadModule(file: string): Promise<Module | null> {
-  const buildFile = path.join(process.cwd(), file);
-  if (!fs.existsSync(buildFile)) {
+async function loadModule(file: string): Promise<any | null> {
+  const buildFile = join(Deno.cwd(), file);
+  if (!existsSync(buildFile)) {
     console.error(
-      `${chalk.red(chalk.bold("error"))}: ${chalk.white(
-        "File not found:"
-      )} ${buildFile}`
+      `${red(bold("error"))}: ${white("File not found:")} ${buildFile}`,
     );
     return null;
   }
@@ -29,9 +28,7 @@ async function loadModule(file: string): Promise<Module | null> {
     return await import(buildFile);
   } catch (err) {
     console.error(
-      `${chalk.red(chalk.bold("error"))}: ${chalk.white(
-        "Failed to import:"
-      )} ${buildFile}`
+      `${red(bold("error"))}: ${white("Failed to import:")} ${buildFile}`,
     );
     console.error();
     console.error(err);
@@ -51,9 +48,9 @@ async function lsCommand(file: string) {
   for (const [taskName, root] of Object.entries(module)) {
     if (root instanceof Image) {
       if (taskName === "default") {
-        console.log(`- ${chalk.bold(chalk.green(taskName))}`);
+        console.log(`- ${bold(green(taskName))}`);
       } else {
-        console.log(`- ${chalk.green(taskName)}`);
+        console.log(`- ${green(taskName)}`);
       }
     }
   }
@@ -72,15 +69,15 @@ async function previewCommand(file: string, target?: string) {
   if (exportedTarget == null) {
     if (target) {
       console.error(
-        `${chalk.red(chalk.bold("error"))}: ${chalk.white(
-          `Export \`${target}\` not found in ${file}`
-        )}`
+        `${red(bold("error"))}: ${
+          white(
+            `Export \`${target}\` not found in ${file}`,
+          )
+        }`,
       );
     } else {
       console.error(
-        `${chalk.red(chalk.bold("error"))}: ${chalk.white(
-          `No default export found in ${file}`
-        )}`
+        `${red(bold("error"))}: ${white(`No default export found in ${file}`)}`,
       );
     }
     return;
@@ -103,15 +100,15 @@ async function buildCommand(file: string, target?: string) {
   if (exportedTarget == null) {
     if (target) {
       console.error(
-        `${chalk.red(chalk.bold("error"))}: ${chalk.white(
-          `Export \`${target}\` not found in ${file}`
-        )}`
+        `${red(bold("error"))}: ${
+          white(
+            `Export \`${target}\` not found in ${file}`,
+          )
+        }`,
       );
     } else {
       console.error(
-        `${chalk.red(chalk.bold("error"))}: ${chalk.white(
-          `No default export found in ${file}`
-        )}`
+        `${red(bold("error"))}: ${white(`No default export found in ${file}`)}`,
       );
     }
     return;
@@ -135,10 +132,12 @@ async function main() {
     .requiredOption(
       "-f, --file <FILE>",
       "path to local TypeKit file (default: build.ts)",
-      "build.ts"
+      "build.ts",
     )
     .option("-t, --target <TARGET>", "target to build within the TypeKit file")
-    .action((options) => previewCommand(options.file, options.target));
+    .action((options: { file: string; target?: string }) =>
+      previewCommand(options.file, options.target)
+    );
 
   program
     .command("build")
@@ -146,10 +145,12 @@ async function main() {
     .requiredOption(
       "-f, --file <FILE>",
       "path to local TypeKit file (default: build.ts)",
-      "build.ts"
+      "build.ts",
     )
     .option("-t, --target <TARGET>", "target to build within the TypeKit file")
-    .action((options) => buildCommand(options.file, options.target));
+    .action((options: { file: string; target?: string }) =>
+      buildCommand(options.file, options.target)
+    );
 
   program
     .command("ls")
@@ -157,11 +158,13 @@ async function main() {
     .requiredOption(
       "-f, --file <FILE>",
       "path to local TypeKit file (default: build.ts)",
-      "build.ts"
+      "build.ts",
     )
-    .action((options) => lsCommand(options.file));
+    .action((options: { file: string }) => lsCommand(options.file));
 
-  await program.parseAsync(process.argv);
+  await program.parseAsync(Deno.args);
 }
 
-await main();
+if (import.meta.main) {
+  await main();
+}

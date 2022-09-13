@@ -3,10 +3,10 @@
  *
  * See: https://docs.docker.com/engine/reference/builder.
  */
-import { Codegen } from "./codegen.js";
-import { Image } from "./image.js";
-import { Mount, serialize } from "./mount.js";
-import { EnvVars } from "./types.js";
+import { Codegen } from "./codegen.ts";
+import { Image } from "./image.ts";
+import { Mount, serialize } from "./mount.ts";
+import { EnvVars } from "./types.ts";
 
 interface Instruction extends Codegen {}
 
@@ -20,12 +20,12 @@ export class Run implements Instruction {
   }
 
   codegen(): string {
-    return this.mount == null
-      ? `RUN ${this.sh}`
-      : `RUN ${this.mount
-          .map(serialize)
-          .map((mount) => `--mount=${mount}`)
-          .join(" ")} ${this.sh}`;
+    return this.mount == null ? `RUN ${this.sh}` : `RUN ${
+      this.mount
+        .map(serialize)
+        .map((mount) => `--mount=${mount}`)
+        .join(" ")
+    } ${this.sh}`;
   }
 }
 
@@ -51,9 +51,11 @@ export class Label implements Instruction {
   }
 
   codegen(): string {
-    return `LABEL ${Object.entries(this.vars)
-      .map(([key, value]) => `"${key}"="${value}"`)
-      .join(" ")}`;
+    return `LABEL ${
+      Object.entries(this.vars)
+        .map(([key, value]) => `"${key}"="${value}"`)
+        .join(" ")
+    }`;
   }
 }
 
