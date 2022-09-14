@@ -12,6 +12,7 @@ export async function runChecks() {
   const checkTypes = Image.from(image).run("npm run check-types --workspaces");
   const checkLint = Image.from(image).run("npm run check-lint --workspaces");
 
+  // TODO(charlie): Enable remote builds.
   const result: Deno.ProcessStatus[] = await Promise.all([
     run(checkFormat),
     run(checkTypes),
