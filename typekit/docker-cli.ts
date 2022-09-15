@@ -2,7 +2,6 @@
  * Low-level interface to the Docker CLI.
  */
 import { join } from "https://deno.land/std@0.156.0/path/mod.ts";
-import { bold, red, white } from "https://deno.land/std@0.156.0/fmt/colors.ts";
 import Kia from "https://deno.land/x/kia@0.4.1/kia.ts";
 import { Image } from "./image.ts";
 import { Run } from "./instructions.ts";
