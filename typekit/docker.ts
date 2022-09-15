@@ -1,5 +1,7 @@
 /**
  * High-level interface to the Docker CLI.
+ *
+ * TODO(charlie): All `Deno.exit(...)` calls in this file should move to higher-level control flow.
  */
 import { join } from "https://deno.land/std@0.156.0/path/mod.ts";
 import { bold, red, white } from "https://deno.land/std@0.156.0/fmt/colors.ts";
@@ -23,7 +25,7 @@ export async function build(image: Image): Promise<string> {
   }
 
   const kia = new Kia({ text: `Build: ${image.tag}` });
-  kia.start();
+  if (!(Deno.env.get("CI") === "true")) kia.start();
 
   const tempDirPath = await Deno.makeTempDir();
   const tempFilePath = join(tempDirPath, "Dockerfile");
@@ -34,12 +36,13 @@ export async function build(image: Image): Promise<string> {
     kia.succeed();
   } else {
     kia.fail();
+    Deno.exit(1);
   }
 
   return image.tag;
 }
 
-export async function push(image: Image): Promise<Deno.ProcessStatus> {
+export async function push(image: Image): Promise<void> {
   if (image.tag == null) {
     console.error(
       `${red(bold("error"))}: ${
@@ -53,7 +56,7 @@ export async function push(image: Image): Promise<Deno.ProcessStatus> {
   }
 
   const kia = new Kia({ text: `Push: ${image.tag}` });
-  kia.start();
+  if (!(Deno.env.get("CI") === "true")) kia.start();
 
   // Push the built Docker image.
   const status = await dockerPush(image.tag);
@@ -61,9 +64,8 @@ export async function push(image: Image): Promise<Deno.ProcessStatus> {
     kia.succeed();
   } else {
     kia.fail();
+    Deno.exit(1);
   }
-
-  return status;
 }
 
 export async function run(image: Image): Promise<Deno.ProcessStatus> {
@@ -71,7 +73,7 @@ export async function run(image: Image): Promise<Deno.ProcessStatus> {
   const kia = new Kia({
     text: layer instanceof Run ? `Run: ${layer.sh}` : "Run task",
   });
-  kia.start();
+  if (!(Deno.env.get("CI") === "true")) kia.start();
 
   const tempDirPath = await Deno.makeTempDir();
   const tempFilePath = join(tempDirPath, "Dockerfile");
