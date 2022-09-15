@@ -1,10 +1,21 @@
-import { join } from "https://deno.land/std/path/mod.ts";
+/**
+ * Interface to the Docker CLI.
+ */
+import { join } from "https://deno.land/std@0.156.0/path/mod.ts";
+import { bold, red, white } from "https://deno.land/std@0.156.0/fmt/colors.ts";
 import { Image } from "./image.ts";
 import { solve } from "./solver.ts";
 
 export async function build(image: Image): Promise<string> {
   if (image.tag == null) {
-    throw Error("Provide a tag for the image via `.withTag(...)`.");
+    console.error(
+      `${red(bold("error"))}: ${
+        white(
+          "Unable to build image without a tag. Provide a tag for the image via `.withTag(...)`.",
+        )
+      }`,
+    );
+    Deno.exit(1);
   }
 
   const tempDirPath = await Deno.makeTempDir();
@@ -32,7 +43,14 @@ export async function build(image: Image): Promise<string> {
 
 export async function push(image: Image): Promise<Deno.ProcessStatus> {
   if (image.tag == null) {
-    throw Error("Provide a tag for the image via `.withTag(...)`.");
+    console.error(
+      `${red(bold("error"))}: ${
+        white(
+          "Unable to push image without a tag. Provide a tag for the image via `.withTag(...)`.",
+        )
+      }`,
+    );
+    Deno.exit(1);
   }
 
   // Push the built Docker image.

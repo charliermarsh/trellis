@@ -1,5 +1,4 @@
 #!/usr/bin/env deno
-import { Sha256 } from "https://deno.land/std@0.156.0/hash/sha256.ts";
 import { parse } from "https://deno.land/std@0.156.0/flags/mod.ts";
 import {
   bold,
@@ -8,112 +7,18 @@ import {
   red,
   white,
 } from "https://deno.land/std@0.156.0/fmt/colors.ts";
-import { existsSync } from "https://deno.land/std@0.156.0/fs/mod.ts";
-import { join } from "https://deno.land/std@0.156.0/path/mod.ts";
+import { Sha256 } from "https://deno.land/std@0.156.0/hash/sha256.ts";
 import { Command } from "https://deno.land/x/cmd@v1.2.0/commander/index.ts";
+import { loadModule, showImages, showTargets, showTasks } from "./cli-utils.ts";
 import { build as buildImage, push as pushImage } from "./docker.ts";
 import { Image } from "./image.ts";
 import { solve } from "./solver.ts";
-
-type Module = {
-  [K: string]:
-    | Image
-    | ((options: { [K: string]: string | boolean | number }) => void);
-};
-
-/**
- * Load a TypeScript module.
- */
-async function loadModule(file: string): Promise<Module | null> {
-  const buildFile = join(Deno.cwd(), file);
-  if (!existsSync(buildFile)) {
-    console.error(
-      `${red(bold("error"))}: ${white("File not found:")} ${buildFile}`,
-    );
-    return null;
-  }
-
-  try {
-    return await import(buildFile);
-  } catch (err) {
-    console.error(
-      `${red(bold("error"))}: ${white("Failed to import:")} ${buildFile}`,
-    );
-    console.error();
-    console.error(err);
-    return null;
-  }
-}
-
-function showImages(file: string, exportNames: string[]) {
-  for (const exportName of exportNames) {
-    if (exportName === "default") {
-      if (file === "index.ts") {
-        console.log(`- ${bold(green(exportName))} (typekit build)`);
-      } else {
-        console.log(`- ${bold(green(exportName))} (typekit build ${file})`);
-      }
-    } else {
-      if (file === "index.ts") {
-        console.log(
-          `- ${green(exportName)} (typekit build --target ${exportName})`,
-        );
-      } else {
-        console.log(
-          `- ${
-            green(exportName)
-          } (typekit build ${file} --target ${exportName})`,
-        );
-      }
-    }
-  }
-}
-
-function showTasks(file: string, exportNames: string[]) {
-  for (const exportName of exportNames) {
-    if (exportName === "default") {
-      if (file === "index.ts") {
-        console.log(`- ${bold(cyan(exportName))} (typekit run)`);
-      } else {
-        console.log(`- ${bold(cyan(exportName))} (typekit run ${file})`);
-      }
-    } else {
-      if (file === "index.ts") {
-        console.log(
-          `- ${cyan(exportName)} (typekit run --target ${exportName})`,
-        );
-      } else {
-        console.log(
-          `- ${cyan(exportName)} (typekit run ${file} --target ${exportName})`,
-        );
-      }
-    }
-  }
-}
-
-function showTargets(file: string, module: Module) {
-  const images = Object.entries(module).filter(([, root]) =>
-    root instanceof Image
-  ).map(([exportName]) => exportName);
-  const tasks = Object.entries(module).filter(([, root]) =>
-    typeof root === "function"
-  ).map(([exportName]) => exportName);
-  if (images.length > 0 || tasks.length > 0) {
-    console.log();
-    console.log(white(`Found the following targets in ${file}:`));
-    showImages(file, images);
-    showTasks(file, tasks);
-  }
-}
 
 /**
  * List the buildable Images and runnable Tasks in a TypeKit file.
  */
 async function lsCommand(file: string) {
   const module = await loadModule(file);
-  if (module == null) {
-    return;
-  }
 
   const images = Object.entries(module).filter(([, root]) =>
     root instanceof Image
@@ -137,9 +42,6 @@ async function lsCommand(file: string) {
  */
 async function previewCommand(file: string, target?: string) {
   const module = await loadModule(file);
-  if (module == null) {
-    return;
-  }
 
   const exportedTarget = module[target || "default"];
   if (exportedTarget == null) {
@@ -157,7 +59,7 @@ async function previewCommand(file: string, target?: string) {
       );
     }
     showTargets(file, module);
-    return;
+    Deno.exit(1);
   }
 
   if (!(exportedTarget instanceof Image)) {
@@ -175,7 +77,7 @@ async function previewCommand(file: string, target?: string) {
       );
     }
     showTargets(file, module);
-    return;
+    Deno.exit(1);
   }
 
   // Print out the resolved Dockerfile.
@@ -187,9 +89,6 @@ async function previewCommand(file: string, target?: string) {
  */
 async function buildCommand(file: string, target?: string, push?: boolean) {
   const module = await loadModule(file);
-  if (module == null) {
-    return;
-  }
 
   const exportedTarget = module[target || "default"];
   if (exportedTarget == null) {
@@ -207,7 +106,7 @@ async function buildCommand(file: string, target?: string, push?: boolean) {
       );
     }
     showTargets(file, module);
-    return;
+    Deno.exit(1);
   }
 
   if (!(exportedTarget instanceof Image)) {
@@ -225,7 +124,7 @@ async function buildCommand(file: string, target?: string, push?: boolean) {
       );
     }
     showTargets(file, module);
-    return;
+    Deno.exit(1);
   }
 
   // To build (and push), we need a tag. Generate one based on the file and target.
@@ -249,9 +148,6 @@ async function buildCommand(file: string, target?: string, push?: boolean) {
  */
 async function runCommand(file: string, target?: string) {
   const module = await loadModule(file);
-  if (module == null) {
-    return;
-  }
 
   const exportedTarget = module[target || "default"];
   if (exportedTarget == null) {
@@ -270,7 +166,7 @@ async function runCommand(file: string, target?: string) {
       );
     }
     showTargets(file, module);
-    return;
+    Deno.exit(1);
   }
 
   if (typeof exportedTarget !== "function") {
@@ -289,7 +185,7 @@ async function runCommand(file: string, target?: string) {
       );
     }
     showTargets(file, module);
-    return;
+    Deno.exit(1);
   }
 
   // Extract options for the command.
