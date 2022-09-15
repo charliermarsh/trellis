@@ -16,7 +16,6 @@ export async function runChecks({ notify }: { notify?: boolean }) {
     "npm run check-lint --workspaces",
   );
 
-  // TODO(charlie): Enable remote builds.
   const result: Deno.ProcessStatus[] = await Promise.all([
     run(checkFormat),
     run(checkTypes),

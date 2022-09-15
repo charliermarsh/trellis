@@ -1,6 +1,6 @@
 import { solve } from "./solver.ts";
 import { Cargo, Command, InstallRustToolchain } from "./commands.ts";
-import { build, run } from "./docker.ts";
+import { build, push, run } from "./docker.ts";
 import { Image } from "./image.ts";
 import {
   Arg,
@@ -30,6 +30,7 @@ export {
   Image,
   InstallRustToolchain,
   Label,
+  push,
   Run,
   run,
   Shell,

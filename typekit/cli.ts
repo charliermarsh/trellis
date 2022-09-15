@@ -10,7 +10,7 @@ import {
 import { Sha256 } from "https://deno.land/std@0.156.0/hash/sha256.ts";
 import { Command } from "https://deno.land/x/cmd@v1.2.0/commander/index.ts";
 import { loadModule, showImages, showTargets, showTasks } from "./cli-utils.ts";
-import { build as buildImage, push as pushImage } from "./docker.ts";
+import { build, push } from "./docker.ts";
 import { Image } from "./image.ts";
 import { solve } from "./solver.ts";
 
@@ -87,7 +87,11 @@ async function previewCommand(file: string, target?: string) {
 /**
  * Build an Image defined in a TypeKit file.
  */
-async function buildCommand(file: string, target?: string, push?: boolean) {
+async function buildCommand(
+  file: string,
+  target?: string,
+  shouldPush?: boolean,
+) {
   const module = await loadModule(file);
 
   const exportedTarget = module[target || "default"];
@@ -137,9 +141,9 @@ async function buildCommand(file: string, target?: string, push?: boolean) {
   }
 
   // Build (and push) the Docker image.
-  await buildImage(image);
-  if (push) {
-    await pushImage(image);
+  await build(image);
+  if (shouldPush) {
+    await push(image);
   }
 }
 
