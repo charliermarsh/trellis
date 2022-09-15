@@ -30,7 +30,6 @@ Run a TypeKit Task.
 ## What's missing?
 
 - Instructions for running locally or on CI.
-- An example of running on GitHub Actions.
 - An example of using TypeKit with Pulumi.
 - Ability to run builds remotely.
 

@@ -3,16 +3,16 @@ import { WebClient } from "https://deno.land/x/slack_web_api/mod.js";
 import { build, Image, run } from "../../../typekit/index.ts";
 import buildStage from "./index.ts";
 
-export async function runChecks({ notify }: { notify?: boolean }) {
-  const baseImage = await build(buildStage);
+export default async function runChecks({ notify }: { notify?: boolean }) {
+  const image = await build(buildStage);
 
-  const checkFormat = Image.from(baseImage).run(
+  const checkFormat = Image.from(image).run(
     "npm run check-format --workspaces",
   );
-  const checkTypes = Image.from(baseImage).run(
+  const checkTypes = Image.from(image).run(
     "npm run check-types --workspaces",
   );
-  const checkLint = Image.from(baseImage).run(
+  const checkLint = Image.from(image).run(
     "npm run check-lint --workspaces",
   );
 
@@ -23,13 +23,14 @@ export async function runChecks({ notify }: { notify?: boolean }) {
   ]);
 
   // Post to Slack.
-  const web = new WebClient(Deno.env.get("SLACK_TOKEN"));
+  const slackToken = Deno.env.get("SLACK_TOKEN");
+  const slackClient = slackToken ? new WebClient(slackToken) : null;
 
   // TODO(charlie): What if I want to extract a build artifact, like a JUnit file or a binary?
   const numFailures = result.filter((status) => !status.success).length;
   if (numFailures === 0) {
-    if (notify) {
-      await web.chat.postMessage({
+    if (slackClient && notify) {
+      await slackClient.chat.postMessage({
         "attachments": [
           {
             "fallback": "Task `runChecks` succeeded",
@@ -43,8 +44,8 @@ export async function runChecks({ notify }: { notify?: boolean }) {
     }
     Deno.exit(0);
   } else {
-    if (notify) {
-      await web.chat.postMessage({
+    if (slackClient && notify) {
+      await slackClient.chat.postMessage({
         "attachments": [
           {
             "fallback": "Task `runChecks` failed",

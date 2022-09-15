@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Install Deno"
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: "1.25.2"
+      - name: "Install TypeKit"
+        working-directory: ./typekit
+        run: deno install --allow-run=docker --allow-net --allow-write --allow-env --allow-read -f cli.ts
+      - name: "Build the image"
+        working-directory: ./examples/typescript-monorepo/build
+        run: typekit build index.ts
+      - name: "Run checks"
+        working-directory: ./examples/typescript-monorepo/build
+        run: typekit run tasks.ts
