@@ -32,6 +32,7 @@ Run a TypeKit Task.
 - Instructions for running locally or on CI.
 - An example of running on GitHub Actions.
 - An example of using TypeKit with Pulumi.
+- Ability to tag images.
 - Ability to push images as part of a pipeline.
 - Ability to extract artifacts as part of a pipeline.
 - Ability to run builds remotely.

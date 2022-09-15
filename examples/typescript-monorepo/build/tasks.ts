@@ -4,13 +4,17 @@ import { build, Image, run } from "../../../typekit/index.ts";
 import buildStage from "./index.ts";
 
 export async function runChecks({ notify }: { notify?: boolean }) {
-  const image = await build(buildStage, "typekit:latest");
+  const baseImage = await build(buildStage);
 
-  const checkFormat = Image.from(image).run(
+  const checkFormat = Image.from(baseImage).run(
     "npm run check-format --workspaces",
   );
-  const checkTypes = Image.from(image).run("npm run check-types --workspaces");
-  const checkLint = Image.from(image).run("npm run check-lint --workspaces");
+  const checkTypes = Image.from(baseImage).run(
+    "npm run check-types --workspaces",
+  );
+  const checkLint = Image.from(baseImage).run(
+    "npm run check-lint --workspaces",
+  );
 
   // TODO(charlie): Enable remote builds.
   const result: Deno.ProcessStatus[] = await Promise.all([

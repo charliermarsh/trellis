@@ -1,4 +1,5 @@
 #!/usr/bin/env deno
+import { Sha256 } from "https://deno.land/std/hash/sha256.ts";
 import { parse } from "https://deno.land/std@0.155.0/flags/mod.ts";
 import {
   bold,
@@ -7,12 +8,12 @@ import {
   red,
   white,
 } from "https://deno.land/std@0.155.0/fmt/colors.ts";
-import { Command } from "https://deno.land/x/cmd@v1.2.0/commander/index.ts";
 import { existsSync } from "https://deno.land/std@0.155.0/fs/mod.ts";
 import { join } from "https://deno.land/std@0.155.0/path/mod.ts";
-import { solve } from "./solver.ts";
-import { build } from "./docker.ts";
+import { Command } from "https://deno.land/x/cmd@v1.2.0/commander/index.ts";
+import { build as buildImage, push as pushImage } from "./docker.ts";
 import { Image } from "./image.ts";
+import { solve } from "./solver.ts";
 
 type Module = {
   [K: string]:
@@ -157,7 +158,7 @@ async function previewCommand(file: string, target?: string) {
 /**
  * Build an Image defined in a TypeKit file.
  */
-async function buildCommand(file: string, target?: string) {
+async function buildCommand(file: string, target?: string, push?: boolean) {
   const module = await loadModule(file);
   if (module == null) {
     return;
@@ -165,6 +166,7 @@ async function buildCommand(file: string, target?: string) {
 
   const exportedTarget = module[target || "default"];
   if (exportedTarget == null) {
+    // TODO(charlie): List other Images in the file.
     if (target) {
       console.error(
         `${red(bold("error"))}: ${
@@ -182,6 +184,7 @@ async function buildCommand(file: string, target?: string) {
   }
 
   if (!(exportedTarget instanceof Image)) {
+    // TODO(charlie): List other Images in the file.
     if (target) {
       console.error(
         `${red(bold("error"))}: ${
@@ -198,8 +201,20 @@ async function buildCommand(file: string, target?: string) {
     return;
   }
 
-  // Build the Docker image.
-  await build(exportedTarget, "typekit:latest");
+  // To build (and push), we need a tag. Generate one based on the file and target.
+  let image = exportedTarget;
+  if (image.tag == null) {
+    const sha = new Sha256().update(Deno.cwd()).update(file).update(
+      target || "default",
+    ).hex();
+    image = image.withTag(`typekit/${sha}`);
+  }
+
+  // Build (and push) the Docker image.
+  await buildImage(image);
+  if (push) {
+    await pushImage(image);
+  }
 }
 
 /**
@@ -213,6 +228,7 @@ async function runCommand(file: string, target?: string) {
 
   const exportedTarget = module[target || "default"];
   if (exportedTarget == null) {
+    // TODO(charlie): List other Tasks in the file.
     if (target) {
       console.error(
         `${red(bold("error"))}: ${
@@ -230,6 +246,7 @@ async function runCommand(file: string, target?: string) {
   }
 
   if (typeof exportedTarget !== "function") {
+    // TODO(charlie): List other Tasks in the file.
     if (target) {
       console.error(
         `${red(bold("error"))}: ${
@@ -262,6 +279,7 @@ async function main() {
   program.usage("-f typekit.ts");
   program.version("0.0.1");
 
+  // TODO(charlie): Make the filename an optional positional.
   program
     .command("ls")
     .description("List all Images and Tasks available in a TypeKit file")
@@ -294,8 +312,9 @@ async function main() {
       "index.ts",
     )
     .option("-t, --target <TARGET>", "Image to build within the TypeKit file")
-    .action((options: { file: string; target?: string }) =>
-      buildCommand(options.file, options.target)
+    .option("--push", "Whether to push the image to a remote registry")
+    .action((options: { file: string; target?: string; push?: boolean }) =>
+      buildCommand(options.file, options.target, options.push)
     );
 
   program

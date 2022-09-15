@@ -22,17 +22,20 @@ let counter = 0;
 export class Image implements Codegen {
   name: string;
   source: string;
+  tag: string | null;
   layers: Codegen[];
   dependencies: Image[];
 
   constructor(
     name: string,
     source: string,
+    tag: string | null,
     layers: Codegen[],
     dependencies: Image[],
   ) {
     this.name = name;
     this.source = source;
+    this.tag = tag;
     this.layers = layers;
     this.dependencies = dependencies;
   }
@@ -41,6 +44,7 @@ export class Image implements Codegen {
     return new Image(
       `stage-${counter++}`,
       typeof source === "string" ? source : source.name,
+      null,
       [],
       typeof source === "string" ? [] : [source],
     );
@@ -50,6 +54,7 @@ export class Image implements Codegen {
     return new Image(
       this.name,
       this.source,
+      this.tag,
       [...this.layers, layer],
       this.dependencies,
     );
@@ -114,6 +119,19 @@ export class Image implements Codegen {
   }
 
   /**
+   * Tagging API.
+   */
+  withTag(tag: string): Image {
+    return new Image(
+      this.name,
+      this.source,
+      tag,
+      this.layers,
+      this.dependencies,
+    );
+  }
+
+  /**
    * Artifact API.
    */
   saveArtifact(fileName: string): Artifact {
@@ -124,6 +142,7 @@ export class Image implements Codegen {
     return new Image(
       this.name,
       this.source,
+      this.tag,
       [
         ...this.layers,
         new Copy(artifact.fileName, destination, artifact.source),
@@ -150,13 +169,5 @@ export class Artifact {
   constructor(source: Image, fileName: string) {
     this.source = source;
     this.fileName = fileName;
-  }
-}
-
-export class BuiltImage {
-  tag: string;
-
-  constructor(tag: string) {
-    this.tag = tag;
   }
 }

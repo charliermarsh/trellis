@@ -4,7 +4,8 @@ import { NPM } from "./commands.ts";
 const NODE_VERSION = "18";
 const WORKSPACES = ["app", "packages/core"];
 
-let buildStage = Image.from(`node:${NODE_VERSION}`)
+let buildStage: Image = Image.from(`node:${NODE_VERSION}`)
+  // .withTag("crmarsh/typescript-monorepo:latest")
   .workDir("/root")
   // Copy over monorepo root configuration files.
   .copy("./tsconfig.build.json", "./")
