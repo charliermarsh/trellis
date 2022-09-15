@@ -16,11 +16,13 @@ export class Command implements Codegen {
 export class InstallRustToolchain extends Command {
   constructor(version: string) {
     super([
+      new Env({
+        CARGO_HOME: "/",
+        RUSTUP_HOME: "/",
+      }),
       new Run(
         `curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain ${version}`,
       ),
-      // TODO(charlie): Each layer might need access to the current directory? We use /root here.
-      new Env({ PATH: "$PATH:/root/.cargo/bin" }),
     ]);
   }
 }
@@ -31,7 +33,7 @@ export class Cargo extends Command {
       new Run(`cargo ${command}`, [
         {
           type: "cache",
-          target: "/root/.cargo/registry",
+          target: "/.cargo/registry",
           sharing: "locked",
         },
       ]),

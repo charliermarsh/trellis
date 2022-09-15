@@ -15,7 +15,9 @@ import { build } from "./docker.ts";
 import { Image } from "./image.ts";
 
 type Module = {
-  [K: string]: Image | ((options: { [K: string]: any }) => void);
+  [K: string]:
+    | Image
+    | ((options: { [K: string]: string | boolean | number }) => void);
 };
 
 /**
@@ -51,12 +53,12 @@ async function lsCommand(file: string) {
     return;
   }
 
-  const images = Object.entries(module).filter(([taskName, root]) =>
+  const images = Object.entries(module).filter(([, root]) =>
     root instanceof Image
   );
   if (images.length > 0) {
     console.log(green("Images:"));
-    for (const [taskName, root] of images) {
+    for (const [taskName] of images) {
       if (taskName === "default") {
         if (file === "index.ts") {
           console.log(`- ${bold(green(taskName))} (typekit build)`);
@@ -77,12 +79,12 @@ async function lsCommand(file: string) {
     }
   }
 
-  const tasks = Object.entries(module).filter(([taskName, root]) =>
+  const tasks = Object.entries(module).filter(([, root]) =>
     typeof root === "function"
   );
   if (tasks.length > 0) {
     console.log(cyan("Tasks:"));
-    for (const [taskName, root] of tasks) {
+    for (const [taskName] of tasks) {
       if (taskName === "default") {
         if (file === "index.ts") {
           console.log(`- ${bold(cyan(taskName))} (typekit run)`);
