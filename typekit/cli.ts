@@ -1,15 +1,15 @@
 #!/usr/bin/env deno
-import { Sha256 } from "https://deno.land/std/hash/sha256.ts";
-import { parse } from "https://deno.land/std@0.155.0/flags/mod.ts";
+import { Sha256 } from "https://deno.land/std@0.156.0/hash/sha256.ts";
+import { parse } from "https://deno.land/std@0.156.0/flags/mod.ts";
 import {
   bold,
   cyan,
   green,
   red,
   white,
-} from "https://deno.land/std@0.155.0/fmt/colors.ts";
-import { existsSync } from "https://deno.land/std@0.155.0/fs/mod.ts";
-import { join } from "https://deno.land/std@0.155.0/path/mod.ts";
+} from "https://deno.land/std@0.156.0/fmt/colors.ts";
+import { existsSync } from "https://deno.land/std@0.156.0/fs/mod.ts";
+import { join } from "https://deno.land/std@0.156.0/path/mod.ts";
 import { Command } from "https://deno.land/x/cmd@v1.2.0/commander/index.ts";
 import { build as buildImage, push as pushImage } from "./docker.ts";
 import { Image } from "./image.ts";
@@ -45,6 +45,67 @@ async function loadModule(file: string): Promise<Module | null> {
   }
 }
 
+function showImages(file: string, exportNames: string[]) {
+  for (const exportName of exportNames) {
+    if (exportName === "default") {
+      if (file === "index.ts") {
+        console.log(`- ${bold(green(exportName))} (typekit build)`);
+      } else {
+        console.log(`- ${bold(green(exportName))} (typekit build ${file})`);
+      }
+    } else {
+      if (file === "index.ts") {
+        console.log(
+          `- ${green(exportName)} (typekit build --target ${exportName})`,
+        );
+      } else {
+        console.log(
+          `- ${
+            green(exportName)
+          } (typekit build ${file} --target ${exportName})`,
+        );
+      }
+    }
+  }
+}
+
+function showTasks(file: string, exportNames: string[]) {
+  for (const exportName of exportNames) {
+    if (exportName === "default") {
+      if (file === "index.ts") {
+        console.log(`- ${bold(cyan(exportName))} (typekit run)`);
+      } else {
+        console.log(`- ${bold(cyan(exportName))} (typekit run ${file})`);
+      }
+    } else {
+      if (file === "index.ts") {
+        console.log(
+          `- ${cyan(exportName)} (typekit run --target ${exportName})`,
+        );
+      } else {
+        console.log(
+          `- ${cyan(exportName)} (typekit run ${file} --target ${exportName})`,
+        );
+      }
+    }
+  }
+}
+
+function showTargets(file: string, module: Module) {
+  const images = Object.entries(module).filter(([, root]) =>
+    root instanceof Image
+  ).map(([exportName]) => exportName);
+  const tasks = Object.entries(module).filter(([, root]) =>
+    typeof root === "function"
+  ).map(([exportName]) => exportName);
+  if (images.length > 0 || tasks.length > 0) {
+    console.log();
+    console.log(white(`Found the following targets in ${file}:`));
+    showImages(file, images);
+    showTasks(file, tasks);
+  }
+}
+
 /**
  * List the buildable Images and runnable Tasks in a TypeKit file.
  */
@@ -56,54 +117,18 @@ async function lsCommand(file: string) {
 
   const images = Object.entries(module).filter(([, root]) =>
     root instanceof Image
-  );
+  ).map(([taskName]) => taskName);
   if (images.length > 0) {
     console.log(green("Images:"));
-    for (const [taskName] of images) {
-      if (taskName === "default") {
-        if (file === "index.ts") {
-          console.log(`- ${bold(green(taskName))} (typekit build)`);
-        } else {
-          console.log(`- ${bold(green(taskName))} (typekit build -f ${file})`);
-        }
-      } else {
-        if (file === "index.ts") {
-          console.log(
-            `- ${green(taskName)} (typekit build -t ${taskName})`,
-          );
-        } else {
-          console.log(
-            `- ${green(taskName)} (typekit build -f ${file} -t ${taskName})`,
-          );
-        }
-      }
-    }
+    showImages(file, images);
   }
 
   const tasks = Object.entries(module).filter(([, root]) =>
     typeof root === "function"
-  );
+  ).map(([taskName]) => taskName);
   if (tasks.length > 0) {
     console.log(cyan("Tasks:"));
-    for (const [taskName] of tasks) {
-      if (taskName === "default") {
-        if (file === "index.ts") {
-          console.log(`- ${bold(cyan(taskName))} (typekit run)`);
-        } else {
-          console.log(`- ${bold(cyan(taskName))} (typekit run -f ${file})`);
-        }
-      } else {
-        if (file === "index.ts") {
-          console.log(
-            `- ${cyan(taskName)} (typekit run -t ${taskName})`,
-          );
-        } else {
-          console.log(
-            `- ${cyan(taskName)} (typekit run -f ${file} -t ${taskName})`,
-          );
-        }
-      }
-    }
+    showTasks(file, tasks);
   }
 }
 
@@ -131,6 +156,7 @@ async function previewCommand(file: string, target?: string) {
         `${red(bold("error"))}: ${white(`No default export found in ${file}`)}`,
       );
     }
+    showTargets(file, module);
     return;
   }
 
@@ -148,6 +174,7 @@ async function previewCommand(file: string, target?: string) {
         `${red(bold("error"))}: ${white(`Default export is not an Image`)}`,
       );
     }
+    showTargets(file, module);
     return;
   }
 
@@ -166,7 +193,6 @@ async function buildCommand(file: string, target?: string, push?: boolean) {
 
   const exportedTarget = module[target || "default"];
   if (exportedTarget == null) {
-    // TODO(charlie): List other Images in the file.
     if (target) {
       console.error(
         `${red(bold("error"))}: ${
@@ -180,11 +206,11 @@ async function buildCommand(file: string, target?: string, push?: boolean) {
         `${red(bold("error"))}: ${white(`No default export found in ${file}`)}`,
       );
     }
+    showTargets(file, module);
     return;
   }
 
   if (!(exportedTarget instanceof Image)) {
-    // TODO(charlie): List other Images in the file.
     if (target) {
       console.error(
         `${red(bold("error"))}: ${
@@ -198,6 +224,7 @@ async function buildCommand(file: string, target?: string, push?: boolean) {
         `${red(bold("error"))}: ${white(`Default export is not an Image`)}`,
       );
     }
+    showTargets(file, module);
     return;
   }
 
@@ -242,6 +269,7 @@ async function runCommand(file: string, target?: string) {
         `${red(bold("error"))}: ${white(`No default export found in ${file}`)}`,
       );
     }
+    showTargets(file, module);
     return;
   }
 
@@ -260,6 +288,7 @@ async function runCommand(file: string, target?: string) {
         }`,
       );
     }
+    showTargets(file, module);
     return;
   }
 
@@ -276,58 +305,40 @@ async function runCommand(file: string, target?: string) {
  */
 async function main() {
   const program = new Command("typekit");
-  program.usage("-f typekit.ts");
+  program.usage("build index.ts");
   program.version("0.0.1");
 
-  // TODO(charlie): Make the filename an optional positional.
   program
-    .command("ls")
+    .command("ls [file]")
     .description("List all Images and Tasks available in a TypeKit file")
-    .requiredOption(
-      "-f, --file <FILE>",
-      "path to local TypeKit file (default: index.ts)",
-      "index.ts",
-    )
-    .action((options: { file: string }) => lsCommand(options.file));
+    .action((file: string | undefined) => {
+      lsCommand(file || "index.ts");
+    });
 
   program
-    .command("preview")
+    .command("preview [file]")
     .description("Preview a Dockerfile")
-    .requiredOption(
-      "-f, --file <FILE>",
-      "path to local TypeKit file (default: index.ts)",
-      "index.ts",
-    )
     .option("-t, --target <TARGET>", "Image to build within the TypeKit file")
-    .action((options: { file: string; target?: string }) =>
-      previewCommand(options.file, options.target)
+    .action((file: string | undefined, options: { target?: string }) =>
+      previewCommand(file || "index.ts", options.target)
     );
 
   program
-    .command("build")
+    .command("build [file]")
     .description("Build an Image defined in a TypeKit file")
-    .requiredOption(
-      "-f, --file <FILE>",
-      "path to local TypeKit file (default: index.ts)",
-      "index.ts",
-    )
     .option("-t, --target <TARGET>", "Image to build within the TypeKit file")
     .option("--push", "Whether to push the image to a remote registry")
-    .action((options: { file: string; target?: string; push?: boolean }) =>
-      buildCommand(options.file, options.target, options.push)
-    );
+    .action((
+      file: string | undefined,
+      options: { target?: string; push?: boolean },
+    ) => buildCommand(file || "index.ts", options.target, options.push));
 
   program
-    .command("run")
+    .command("run [file]")
     .description("Run a Task defined in a TypeKit file")
-    .requiredOption(
-      "-f, --file <FILE>",
-      "path to local TypeKit file (default: index.ts)",
-      "index.ts",
-    )
     .option("-t, --target <TARGET>", "Task to run within the TypeKit file")
-    .action((options: { file: string; target?: string }) =>
-      runCommand(options.file, options.target)
+    .action((file: string | undefined, options: { target?: string }) =>
+      runCommand(file || "index.ts", options.target)
     );
 
   await program.parseAsync(Deno.args);
