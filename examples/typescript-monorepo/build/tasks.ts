@@ -1,9 +1,9 @@
 import "https://deno.land/x/dotenv/load.ts";
 import { WebClient } from "https://deno.land/x/slack_web_api/mod.js";
 import { build, Image, run } from "../../../typekit/index.ts";
-import buildStage from "./build.ts";
+import buildStage from "./index.ts";
 
-export async function runChecks() {
+export async function runChecks({ notify }: { notify?: boolean }) {
   const image = await build(buildStage, "typekit:latest");
 
   const checkFormat = Image.from(image).run(
@@ -23,19 +23,36 @@ export async function runChecks() {
   const web = new WebClient(Deno.env.get("SLACK_TOKEN"));
 
   // TODO(charlie): What if I want to extract a build artifact, like a JUnit file or a binary?
-  if (result.every((status) => status.success)) {
-    await web.chat.postMessage({
-      text: "Success!",
-      channel: "#alerts",
-    });
-    console.log("Success!");
+  const numFailures = result.filter((status) => !status.success).length;
+  if (numFailures === 0) {
+    if (notify) {
+      await web.chat.postMessage({
+        "attachments": [
+          {
+            "fallback": "Task `runChecks` succeeded",
+            "title": "Task `runChecks` succeeded",
+            "text": "Task completed without error.",
+            "color": "good",
+          },
+        ],
+        channel: "#alerts",
+      });
+    }
+    Deno.exit(0);
   } else {
-    await web.chat.postMessage({
-      text: "Failure!",
-      channel: "#alerts",
-    });
-    console.error("Failure!");
+    if (notify) {
+      await web.chat.postMessage({
+        "attachments": [
+          {
+            "fallback": "Task `runChecks` failed",
+            "title": "Task `runChecks` failed",
+            "text": `Task completed ${numFailures} error(s).`,
+            "color": "danger",
+          },
+        ],
+        channel: "#alerts",
+      });
+    }
+    Deno.exit(1);
   }
 }
-
-await runChecks();
