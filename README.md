@@ -9,6 +9,34 @@ hosted platform.
 TypeKit takes inspiration from tools like [Earthly](https://earthly.dev/),
 [Dagger](https://dagger.io/), and [Tangram](https://tangram.dev/).
 
+## Motivation
+
+TypeKit can be used in several ways and so fits into several different framings:
+
+1. "Write Dockerfiles in TypeScript"
+2. "Write Jenkinsfiles in TypeScript" (or any CI/CD pipeline)
+3. "Write command-line tools in TypeScript" (this is more tenuous)
+
+Why do this? Much of it is motivated by what I see as failings of Jenkins but, in my opinion, also
+apply to other CI/CD systems.
+
+- Dockerfiles are hard to maintain. Writing them in TypeScript gives you autocompletion out of the
+  box, and enables you to take advantage of composition, modularity, and abstraction. By leveraging
+  types, we can make certain Dockerfile mistakes "impossible" (like relying on non-existent
+  artifacts).
+- CI/CD should be runnable locally as a first-class primitive.
+- CI/CD should be portable.
+- Writing CI/CD in TypeScript gives us immediate access to a familiar ecosystem. For example, if we
+  want to ping Slack within a CI script, we just `npm install` the Slack client (as opposed to
+  install a Slack plugin on Jenkins).
+- Using Deno means that installation is extremely simple.
+
+A significant goal here is that running locally shouldn't mean that your builds happen locally. And
+we should handle caching and intelligent builds automatically (unlike GitHub Actions) or other
+systems where caching always comes last. Imagine if you could run a CI command and get
+zero-configuration access to running builds on the cloud while orchestrating from your local
+machine? Cloud compute that feels local.
+
 ## Commands
 
 ### `typekit preview`
@@ -44,7 +72,8 @@ Run a TypeKit Task.
 
 ### Caching
 
-- How do we handle multi-stage builds? Do we automatically push all stages?
+- Should we enable shared inline caches?
+- How would we handle multi-stage builds? Would we automatically push all stages?
 
 ### Remote server
 
