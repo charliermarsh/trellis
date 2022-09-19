@@ -26,7 +26,6 @@ export default async function runChecks({ notify }: { notify?: boolean }) {
   const slackToken = Deno.env.get("SLACK_TOKEN");
   const slackClient = slackToken ? new WebClient(slackToken) : null;
 
-  // TODO(charlie): What if I want to extract a build artifact, like a JUnit file or a binary?
   const numFailures = result.filter((status) => !status.success).length;
   if (numFailures === 0) {
     if (slackClient && notify) {

@@ -1,4 +1,4 @@
-import toposort from "./toposort.js";
+import toposort from "https://cdn.skypack.dev/toposort";
 import { Image } from "./image.ts";
 
 function preorderTraversal(root: Image): Image[] {

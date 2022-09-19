@@ -11,31 +11,40 @@ TypeKit takes inspiration from tools like [Earthly](https://earthly.dev/),
 
 ## Motivation
 
-TypeKit can be used in several ways and so fits into several different framings:
+TypeKit can be used in several ways and so fits into several framings:
 
 1. "Write Dockerfiles in TypeScript"
 2. "Write Jenkinsfiles in TypeScript" (or any CI/CD pipeline)
 3. "Write command-line tools in TypeScript" (this is more tenuous)
 
-Why do this? Much of it is motivated by what I see as failings of Jenkins but, in my opinion, also
-apply to other CI/CD systems.
+Why do this? Much of it is motivated by what I see as failings of Jenkins but,
+in my opinion, also apply to other CI/CD systems.
 
-- Dockerfiles are hard to maintain. Writing them in TypeScript gives you autocompletion out of the
-  box, and enables you to take advantage of composition, modularity, and abstraction. By leveraging
-  types, we can make certain Dockerfile mistakes "impossible" (like relying on non-existent
+- Dockerfiles are hard to maintain. Writing them in TypeScript gives you
+  autocompletion out of the box, and enables you to take advantage of
+  composition, modularity, and abstraction. By leveraging types, we can make
+  certain Dockerfile mistakes "impossible" (like relying on non-existent
   artifacts).
+- Writing _efficient_ Dockerfiles is hard. As BuildKit has expanded, Dockerfile
+  has become too low-level. TypeKit gives you higher-level primitives.
 - CI/CD should be runnable locally as a first-class primitive.
 - CI/CD should be portable.
-- Writing CI/CD in TypeScript gives us immediate access to a familiar ecosystem. For example, if we
-  want to ping Slack within a CI script, we just `npm install` the Slack client (as opposed to
-  install a Slack plugin on Jenkins).
+- Writing CI/CD in TypeScript gives us immediate access to a familiar ecosystem.
+  For example, if we want to ping Slack within a CI script, we just
+  `npm install` the Slack client (as opposed to install a Slack plugin on
+  Jenkins).
 - Using Deno means that installation is extremely simple.
 
-A significant goal here is that running locally shouldn't mean that your builds happen locally. And
-we should handle caching and intelligent builds automatically (unlike GitHub Actions) or other
-systems where caching always comes last. Imagine if you could run a CI command and get
-zero-configuration access to running builds on the cloud while orchestrating from your local
+A significant goal here is that running locally shouldn't mean that your builds
+happen locally. And we should handle caching and intelligent builds
+automatically (unlike GitHub Actions) or other systems where caching always
+comes last. Imagine if you could run a CI command and get zero-configuration
+access to running builds on the cloud while orchestrating from your local
 machine? Cloud compute that feels local.
+
+## Design goals
+
+- Feel similar to Dockerfile
 
 ## Commands
 
@@ -55,7 +64,21 @@ List the buildable Images and runnable Tasks defined in a TypeKit file.
 
 Run a TypeKit Task.
 
+## Examples
+
+1. Rust (Rocket) webserver
+2. TypeScript monorepo
+3. Linux development container
+4. Nix-backed development container
+
 ## What's missing?
+
+Future goals:
+
+- Auto-generate TypeKit files like Nixpacks
+- Automatically connect to (extremely fast) cloud compute
+- Create CI-like abstractions around job configuration and workflow state, with
+  infrastructure-as-code and one-click deployment
 
 ### Documentation
 
@@ -73,7 +96,8 @@ Run a TypeKit Task.
 ### Caching
 
 - Should we enable shared inline caches?
-- How would we handle multi-stage builds? Would we automatically push all stages?
+- How would we handle multi-stage builds? Would we automatically push all
+  stages?
 
 ### Remote server
 

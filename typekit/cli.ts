@@ -141,9 +141,16 @@ async function buildCommand(
   }
 
   // Build (and push) the Docker image.
-  await build(image);
-  if (shouldPush) {
-    await push(image);
+  try {
+    await build(image);
+    if (shouldPush) {
+      await push(image);
+    }
+  } catch (e) {
+    console.error(
+      `${red(bold("error"))}: ${white(e.message)}`,
+    );
+    Deno.exit(1);
   }
 }
 
