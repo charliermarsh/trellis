@@ -23,8 +23,8 @@ jobs:
         working-directory: ./trellis
         run: deno install --allow-run=docker --allow-net --allow-write --allow-env --allow-read -f cli.ts
       - name: "Build the image"
-        working-directory: ./examples/typescript-monorepo/build
-        run: trellis build index.ts
+        working-directory: ./examples/typescript
+        run: trellis build trellis/index.ts
       - name: "Run checks"
-        working-directory: ./examples/typescript-monorepo/build
-        run: trellis run tasks.ts
+        working-directory: ./examples/typescript
+        run: trellis run trellis/tasks.ts
