@@ -1,16 +1,10 @@
 import { Image } from "../../trellis/index.ts";
+import { BuildCargoProject } from "./commands.ts";
 
 const buildStage = Image.from("rust:1.63")
   .workDir("/usr/src/ruff")
-  // Build dependencies.
-  .copy("ruff/Cargo.toml", ".")
-  .copy("ruff/Cargo.lock", ".")
-  .run("mkdir -p src && touch src/lib.rs")
-  .run("cargo build")
-  // Build user code.
-  .copy("ruff/src", "src")
-  .run("mkdir -p src && touch src/lib.rs")
-  .run("cargo build")
+  // Build project.
+  .with(new BuildCargoProject("ruff"))
   // Copy over auxiliary resources.
   .copy("ruff/resources", "resources")
   .copy("ruff/pyproject.toml", "pyproject.toml");
