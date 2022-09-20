@@ -3,8 +3,8 @@
  */
 import { join } from "https://deno.land/std@0.156.0/path/mod.ts";
 import Kia from "https://deno.land/x/kia@0.4.1/kia.ts";
-import { dockerBuild, dockerPush } from "./docker-cli.ts";
-import { Image } from "./image.ts";
+import { dockerBuild, dockerCp, dockerPush } from "./docker-cli.ts";
+import { Artifact, Image } from "./image.ts";
 import { Run } from "./instructions.ts";
 import { solve } from "./solver.ts";
 
@@ -65,6 +65,37 @@ export async function run(image: Image): Promise<Deno.ProcessStatus> {
   await Deno.writeTextFile(tempFilePath, solve(image));
 
   const status = await dockerBuild(".", tempFilePath, { quiet: true }, {
+    "stdout": "null",
+  });
+  if (status.success) {
+    kia.succeed();
+  } else {
+    kia.fail();
+  }
+
+  return status;
+}
+
+/**
+ * Save an artifact locally.
+ */
+export async function save(
+  artifact: Artifact,
+  destPath: string,
+): Promise<Deno.ProcessStatus> {
+  const copyStage = Image.from("scratch").copyArtifact(artifact, "./");
+
+  const kia = new Kia({ text: `Save: ${artifact.fileName}` });
+  if (!(Deno.env.get("CI") === "true")) kia.start();
+
+  const tempDirPath = await Deno.makeTempDir();
+  const tempFilePath = join(tempDirPath, "Dockerfile");
+  await Deno.writeTextFile(tempFilePath, solve(copyStage));
+
+  const status = await dockerBuild(".", tempFilePath, {
+    quiet: true,
+    output: { type: "local", dest: destPath },
+  }, {
     "stdout": "null",
   });
   if (status.success) {
