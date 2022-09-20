@@ -1,5 +1,5 @@
 import { solve } from "./solver.ts";
-import { Cargo, Command, InstallRustToolchain } from "./commands.ts";
+import { Command } from "./commands.ts";
 import { build, push, run, save } from "./docker.ts";
 import { Image } from "./image.ts";
 import {
@@ -20,7 +20,6 @@ import {
 export {
   Arg,
   build,
-  Cargo,
   Cmd,
   Command,
   Copy,
@@ -28,7 +27,6 @@ export {
   Env,
   Expose,
   Image,
-  InstallRustToolchain,
   Label,
   push,
   Run,

@@ -1,7 +1,6 @@
 import { Image } from "../../trellis/index.ts";
 
 const buildStage = Image.from("rust:1.63")
-  .withTag("crmarsh/ruff")
   .workDir("/usr/src/ruff")
   // Build dependencies.
   .copy("ruff/Cargo.toml", ".")
@@ -17,7 +16,6 @@ const buildStage = Image.from("rust:1.63")
   .copy("ruff/pyproject.toml", "pyproject.toml");
 
 const devStage = Image.from(buildStage)
-  .withTag("crmarsh/ruff-dev")
   .run("rustup component add clippy")
   .run("rustup component add rustfmt");
 
