@@ -23,8 +23,11 @@ export async function dockerBuild(
   // Build the Docker image.
   const process = Deno.run({
     cmd: [
-      "docker",
+      "depot",
       "build",
+        "--load",
+        "--project",
+        'fmnn23f0bz',
       ...(flags.quiet ? ["--quiet"] : []),
       ...(flags.rm ? ["--rm"] : []),
       ...(flags.tag ? ["-t", flags.tag] : []),
@@ -54,7 +57,7 @@ export async function dockerPush(nameTag: string, options?: {
 }): Promise<Deno.ProcessStatus> {
   // Push the built Docker image.
   const process = Deno.run({
-    cmd: ["docker", "push", nameTag],
+    cmd: ["depot", "push", nameTag],
     env: {
       "DOCKER_BUILDKIT": "1",
       "DOCKER_SCAN_SUGGEST": "false",
