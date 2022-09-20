@@ -83,11 +83,10 @@ export async function save(
   artifact: Artifact,
   destPath: string,
 ): Promise<Deno.ProcessStatus> {
-  const copyStage = Image.from("scratch").copyArtifact(artifact, "./");
-
   const kia = new Kia({ text: `Save: ${artifact.fileName}` });
   if (!(Deno.env.get("CI") === "true")) kia.start();
 
+  const copyStage = Image.from("scratch").copyArtifact(artifact, "./");
   const tempDirPath = await Deno.makeTempDir();
   const tempFilePath = join(tempDirPath, "Dockerfile");
   await Deno.writeTextFile(tempFilePath, solve(copyStage));
