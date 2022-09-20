@@ -1,4 +1,3 @@
-import { solve } from "./solver.ts";
 import { Command } from "./commands.ts";
 import { build, push, run, save } from "./docker.ts";
 import { Image } from "./image.ts";
@@ -16,6 +15,7 @@ import {
   Volume,
   WorkDir,
 } from "./instructions.ts";
+import { solve } from "./solver.ts";
 
 export {
   Arg,

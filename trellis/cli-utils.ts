@@ -1,12 +1,4 @@
-import {
-  bold,
-  cyan,
-  green,
-  red,
-  white,
-} from "https://deno.land/std@0.156.0/fmt/colors.ts";
-import { existsSync } from "https://deno.land/std@0.156.0/fs/mod.ts";
-import { join } from "https://deno.land/std@0.156.0/path/mod.ts";
+import { bold, cyan, existsSync, green, join, red, white } from "./deps.ts";
 import { Image } from "./image.ts";
 
 type Module = {

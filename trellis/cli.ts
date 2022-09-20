@@ -1,15 +1,15 @@
 #!/usr/bin/env deno
-import { parse } from "https://deno.land/std@0.156.0/flags/mod.ts";
+import { loadModule, showImages, showTargets, showTasks } from "./cli-utils.ts";
 import {
   bold,
+  Command,
   cyan,
   green,
+  parse,
   red,
+  Sha256,
   white,
-} from "https://deno.land/std@0.156.0/fmt/colors.ts";
-import { Sha256 } from "https://deno.land/std@0.156.0/hash/sha256.ts";
-import { Command } from "https://deno.land/x/cmd@v1.2.0/commander/index.ts";
-import { loadModule, showImages, showTargets, showTasks } from "./cli-utils.ts";
+} from "./deps.ts";
 import { build, push } from "./docker.ts";
 import { Image } from "./image.ts";
 import { solve } from "./solver.ts";

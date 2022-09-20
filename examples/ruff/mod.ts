@@ -1,4 +1,5 @@
-import { Image } from "../../trellis/mod.ts";import { BuildCargoProject } from "./commands.ts";
+import { Image } from "../../trellis/mod.ts";
+import { BuildCargoProject } from "./commands.ts";
 
 const buildStage = Image.from("rust:1.63")
   .workDir("/usr/src/ruff")

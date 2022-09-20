@@ -1,13 +1,11 @@
 /**
  * High-level interface to the Docker CLI.
  */
-import { join } from "https://deno.land/std@0.156.0/path/mod.ts";
-import Kia from "https://deno.land/x/kia@0.4.1/kia.ts";
+import { join, Kia, Sha256 } from "./deps.ts";
 import { dockerBuild, dockerPush } from "./docker-cli.ts";
 import { Artifact, Image } from "./image.ts";
 import { Run } from "./instructions.ts";
 import { solve } from "./solver.ts";
-import { Sha256 } from "https://deno.land/std@0.156.0/hash/sha256.ts";
 
 /**
  * Build an image.
