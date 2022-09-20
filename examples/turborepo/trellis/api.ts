@@ -1,7 +1,7 @@
 /**
  * Trellis definition for apps/api.
  */
-import { Image } from "../../../trellis/index.ts";
+import { Image } from "../../../trellis/mod.ts";
 import { buildApp, NODE_VERSION } from "./shared.ts";
 
 const appArtifact = buildApp("api").saveArtifact("/app");

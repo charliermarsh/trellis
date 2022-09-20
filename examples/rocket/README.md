@@ -8,7 +8,7 @@ Using Trellis to build and deploy a Rust web application (via the
 To generate the Dockerfile, run:
 
 ```shell
-trellis preview trellis/index.ts > trellis/Dockerfile
+trellis preview trellis/image.ts > trellis/Dockerfile
 ```
 
 To deploy to Fly.io, configure [Flyctl](https://fly.io/docs/getting-started/),

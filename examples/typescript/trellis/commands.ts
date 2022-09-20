@@ -1,4 +1,4 @@
-import { Command, Run } from "../../../trellis/index.ts";
+import { Command, Run } from "../../../trellis/mod.ts";
 
 export class NPM extends Command {
   constructor(command: string) {

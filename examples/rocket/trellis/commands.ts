@@ -1,4 +1,4 @@
-import { Command, Env, Run } from "../../../trellis/index.ts";
+import { Command, Env, Run } from "../../../trellis/mod.ts";
 
 export class InstallRustToolchain extends Command {
   constructor(version: string) {

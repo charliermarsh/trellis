@@ -1,4 +1,4 @@
-import { build, Image, save } from "../../trellis/index.ts";
+import { build, Image, save } from "../../trellis/mod.ts";
 import { runc } from "./build.ts";
 
 export default async function createSpec() {

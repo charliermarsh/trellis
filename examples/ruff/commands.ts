@@ -1,4 +1,4 @@
-import { Command, Copy, Run } from "../../trellis/index.ts";
+import { Command, Copy, Run } from "../../trellis/mod.ts";
 
 export class BuildCargoProject extends Command {
   constructor(directory: string) {

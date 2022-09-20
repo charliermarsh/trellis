@@ -1,4 +1,4 @@
-import { Image } from "../../../trellis/index.ts";
+import { Image } from "../../../trellis/mod.ts";
 
 export const NODE_VERSION = "alpine";
 

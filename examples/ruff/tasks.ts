@@ -1,4 +1,4 @@
-import { build, Image, run } from "../../trellis/index.ts";
+import { build, Image, run } from "../../trellis/mod.ts";
 import { devStage } from "./index.ts";
 
 export default async function runChecks() {

@@ -18,10 +18,10 @@ Export any `Image` to enable Dockerfile generation and image building with
 Trellis.
 
 For example, to define an Ubuntu image with a few useful utilities installed,
-you could write the following `index.ts` file:
+you could write the following `mod.ts` file:
 
 ```typescript
-import { Image } from "../../trellis/index.ts";
+import { Image } from "../../trellis/mod.ts";
 
 const UBUNTU_VERSION = "20.04";
 
@@ -34,16 +34,16 @@ export const buildStage = Image.from(`ubuntu:${UBUNTU_VERSION}`)
   ]);
 ```
 
-Running `trellis ls index.ts` lists the buildable Images:
+Running `trellis ls mod.ts` lists the buildable Images:
 
 ```shell
->>> trellis ls index.ts
+>>> trellis ls mod.ts
 Images:
 - buildStage (trellis build --target buildStage)
 ```
 
 We can preview the generated Dockerfile with
-`trellis preview index.ts --target buildStage`:
+`trellis preview mod.ts --target buildStage`:
 
 ```shell
 >>> trellis preview --target buildStage
@@ -87,8 +87,8 @@ For example, to define a CI pipeline to verify that our command-line utilities
 were successfully installed, you could write the following `tasks.ts` file:
 
 ```typescript
-import { build, Image, run } from "../../trellis/index.ts";
-import { buildStage } from "./index.ts";
+import { build, Image, run } from "../../trellis/mod.ts";
+import { buildStage } from "./mod.ts";
 
 export default async function runChecks() {
   const image = await build(buildStage);
@@ -179,7 +179,7 @@ jobs:
         run: deno install --allow-run=docker --allow-net --allow-write --allow-env --allow-read -f cli.ts
       - name: "Build the image"
         working-directory: ./examples/typescript
-        run: trellis build trellis/index.ts
+        run: trellis build trellis/mod.ts
 ```
 
 ## Motivation

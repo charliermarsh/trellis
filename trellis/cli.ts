@@ -212,14 +212,14 @@ async function runCommand(file: string, target?: string) {
  */
 async function main() {
   const program = new Command("trellis");
-  program.usage("build index.ts");
+  program.usage("build mod.ts");
   program.version("0.0.1");
 
   program
     .command("ls [file]")
     .description("List all Images and Tasks available in a TypeScript module")
     .action((file: string | undefined) => {
-      lsCommand(file || "index.ts");
+      lsCommand(file || "mod.ts");
     });
 
   program
@@ -230,7 +230,7 @@ async function main() {
       "Image to build within the TypeScript module",
     )
     .action((file: string | undefined, options: { target?: string }) =>
-      previewCommand(file || "index.ts", options.target)
+      previewCommand(file || "mod.ts", options.target)
     );
 
   program
@@ -244,14 +244,14 @@ async function main() {
     .action((
       file: string | undefined,
       options: { target?: string; push?: boolean },
-    ) => buildCommand(file || "index.ts", options.target, options.push));
+    ) => buildCommand(file || "mod.ts", options.target, options.push));
 
   program
     .command("run [file]")
     .description("Run a Task defined in a TypeScript module")
     .option("-t, --target <TARGET>", "Task to run within the TypeScript module")
     .action((file: string | undefined, options: { target?: string }) =>
-      runCommand(file || "index.ts", options.target)
+      runCommand(file || "mod.ts", options.target)
     );
 
   await program.parseAsync(Deno.args);

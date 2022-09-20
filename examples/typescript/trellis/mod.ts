@@ -1,4 +1,4 @@
-import { Image } from "../../../trellis/index.ts";
+import { Image } from "../../../trellis/mod.ts";
 import { NPM } from "./commands.ts";
 
 const NODE_VERSION = "18";

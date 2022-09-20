@@ -1,4 +1,4 @@
-import { Image } from "../../trellis/index.ts";
+import { Image } from "../../trellis/mod.ts";
 
 export const runc = Image.from("golang:1.19.1-bullseye")
   .withTag("runc:latest")
