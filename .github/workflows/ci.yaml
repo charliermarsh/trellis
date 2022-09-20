@@ -21,7 +21,7 @@ jobs:
           deno-version: "1.25.2"
       - name: "Install Trellis"
         working-directory: ./trellis
-        run: deno install --allow-run=docker --allow-net --allow-write --allow-env --allow-read -f cli.ts
+        run: deno install --allow-run=docker --allow-net --allow-write --allow-env --allow-read cli.ts
       - name: "Build the image"
         working-directory: ./examples/typescript
         run: trellis build trellis/mod.ts
