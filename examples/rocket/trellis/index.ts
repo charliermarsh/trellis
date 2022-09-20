@@ -33,4 +33,4 @@ const appStage = Image.from(`ubuntu:${UBUNTU_VERSION}`)
   .copyArtifact(binary, "./bin")
   .cmd(["./bin"]);
 
-export { appStage, buildStage };
+export default appStage;
