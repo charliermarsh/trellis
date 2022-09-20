@@ -10,7 +10,29 @@ platform).
 
 ### Installation
 
-TODO(charlie): Installation via deno.land.
+First, [install Deno](https://deno.land/#installation) with `brew install deno` or comparable.
+
+Second, install the Trellis CLI with `deno install --allow-run=docker --allow-net --allow-write --allow-env --allow-read -f https://deno.land/x/trellis@v0.0.4/cli.ts`.
+
+Run `trellis --help` to verify your installation:
+
+```shell
+>>> trellis --help
+Usage: trellis build mod.ts
+
+Options:
+  -V, --version             output the version number
+  -h, --help                display help for command
+
+Commands:
+  ls [file]                 List all Images and Tasks available in a
+                            TypeScript module
+  preview [options] [file]  Generate a Dockerfile defined in a TypeScript
+                            module
+  build [options] [file]    Build an Image defined in a TypeScript module
+  run [options] [file]      Run a Task defined in a TypeScript module
+  help [command]            display help for command
+```
 
 ### Define a Docker image
 
@@ -21,7 +43,7 @@ For example, to define an Ubuntu image with a few useful utilities installed,
 you could write the following `mod.ts` file:
 
 ```typescript
-import { Image } from "../../trellis/mod.ts";
+import { Image } from "https://deno.land/x/trellis@v0.0.4/mod.ts";
 
 const UBUNTU_VERSION = "20.04";
 
@@ -42,8 +64,7 @@ Images:
 - buildStage (trellis build --target buildStage)
 ```
 
-We can preview the generated Dockerfile with
-`trellis preview mod.ts --target buildStage`:
+We can preview the generated Dockerfile with `trellis preview mod.ts --target buildStage`:
 
 ```shell
 >>> trellis preview --target buildStage
@@ -87,7 +108,7 @@ For example, to define a CI pipeline to verify that our command-line utilities
 were successfully installed, you could write the following `tasks.ts` file:
 
 ```typescript
-import { build, Image, run } from "../../trellis/mod.ts";
+import { build, Image, run } from "https://deno.land/x/trellis@v0.0.4/mod.ts";
 import { buildStage } from "./mod.ts";
 
 export default async function runChecks() {
@@ -176,7 +197,7 @@ jobs:
           deno-version: "1.25.2"
       - name: "Install Trellis"
         working-directory: ./trellis
-        run: deno install --allow-run=docker --allow-net --allow-write --allow-env --allow-read -f cli.ts
+        run: deno install --allow-run=docker --allow-net --allow-write --allow-env --allow-read -f https://deno.land/x/trellis@v0.0.4/cli.ts
       - name: "Build the image"
         working-directory: ./examples/typescript
         run: trellis build trellis/mod.ts
