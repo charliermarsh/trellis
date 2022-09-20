@@ -7,7 +7,7 @@ kill_timeout = 5
 processes = []
 
 [build]
-  dockerfile = "build/Dockerfile"
+  dockerfile = "trellis/Dockerfile"
 
 [env]
 
