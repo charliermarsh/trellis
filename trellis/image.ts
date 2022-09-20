@@ -83,8 +83,12 @@ export class Image implements Codegen {
     return this.with(new Env(vars));
   }
 
-  copy(source: string, destination: string): Image {
-    return this.with(new Copy(source, destination));
+  copy(
+    source: string,
+    destination: string,
+    chown?: { user: string; group: string },
+  ): Image {
+    return this.with(new Copy(source, destination, chown));
   }
 
   entrypoint(instruction: string | string[]): Image {
@@ -138,14 +142,18 @@ export class Image implements Codegen {
     return new Artifact(this, fileName);
   }
 
-  copyArtifact(artifact: Artifact, destination: string): Image {
+  copyArtifact(
+    artifact: Artifact,
+    destination: string,
+    chown?: { user: string; group: string },
+  ): Image {
     return new Image(
       this.name,
       this.source,
       this.tag,
       [
         ...this.layers,
-        new Copy(artifact.fileName, destination, artifact.source),
+        new Copy(artifact.fileName, destination, chown, artifact.source),
       ],
       [...this.dependencies, artifact.source],
     );

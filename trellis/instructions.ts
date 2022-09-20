@@ -89,18 +89,32 @@ export class Env implements Instruction {
 export class Copy implements Instruction {
   source: string;
   destination: string;
+  chown?: { user: string; group: string };
   from?: Image;
 
-  constructor(source: string, destination: string, from?: Image) {
+  constructor(
+    source: string,
+    destination: string,
+    chown?: { user: string; group: string },
+    from?: Image,
+  ) {
     this.source = source;
     this.destination = destination;
+    this.chown = chown;
     this.from = from;
   }
 
   codegen(): string {
-    return this.from
-      ? `COPY --link --from=${this.from.name} ${this.source} ${this.destination}`
-      : `COPY --link ${this.source} ${this.destination}`;
+    const segments = ["COPY", "--link"];
+    if (this.chown) {
+      segments.push(`--chown=${this.chown.user}:${this.chown.group}`);
+    }
+    if (this.from) {
+      segments.push(`--from=${this.from.name}`);
+    }
+    segments.push(this.source);
+    segments.push(this.destination);
+    return segments.join(" ");
   }
 }
 

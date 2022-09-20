@@ -22,7 +22,7 @@ export async function build(image: Image): Promise<string> {
   const tempFilePath = join(tempDirPath, "Dockerfile");
   await Deno.writeTextFile(tempFilePath, solve(image));
 
-  const status = await dockerBuild("..", tempFilePath, { tag: image.tag });
+  const status = await dockerBuild(".", tempFilePath, { tag: image.tag });
   if (status.success) {
     kia.succeed();
   } else {
@@ -64,7 +64,7 @@ export async function run(image: Image): Promise<Deno.ProcessStatus> {
   const tempFilePath = join(tempDirPath, "Dockerfile");
   await Deno.writeTextFile(tempFilePath, solve(image));
 
-  const status = await dockerBuild("..", tempFilePath, { quiet: true }, {
+  const status = await dockerBuild(".", tempFilePath, { quiet: true }, {
     "stdout": "null",
   });
   if (status.success) {

@@ -46,7 +46,7 @@ machine? Cloud compute that feels local.
 
 - Feel similar to Dockerfile
 
-## Commands
+## CLI
 
 ### `trellis preview`
 
@@ -71,9 +71,7 @@ Run a Trellis Task.
 3. Linux development container
 4. Nix-backed development container
 
-## What's missing?
-
-Future goals:
+## Roadmap
 
 - Auto-generate Trellis files like Nixpacks
 - Automatically connect to (extremely fast) cloud compute
