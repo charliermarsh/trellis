@@ -3,7 +3,7 @@
 ![Trellis module version](https://shield.deno.dev/x/trellis)
 [![Actions status](https://github.com/charliermarsh/trellis/workflows/CI/badge.svg)](https://github.com/charliermarsh/trellis/actions)
 
-_Write Dockerfiles, Jenkinsfiles, and more, in TypeScript._
+_Write Dockerfiles and CI pipelines in TypeScript._
 
 Trellis is a portable CI/CD tool. With Trellis, you can define your Dockerfiles
 and CI/CD pipelines in TypeScript, and run them anywhere (locally or on a hosted
