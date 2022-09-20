@@ -1,5 +1,8 @@
 # Trellis
 
+![Trellis module version](https://shield.deno.dev/x/trellis)
+[![Actions status](https://github.com/charliermarsh/trellis/workflows/CI/badge.svg)](https://github.com/charliermarsh/trellis/actions)
+
 _Write Dockerfiles, Jenkinsfiles, and more, in TypeScript._
 
 Trellis is a portable CI/CD tool. With Trellis, you can define your Dockerfiles
@@ -10,7 +13,7 @@ platform).
 
 ### Installation
 
-First, [install Deno](https://deno.land/#installation) with: `brew install deno`
+First, [install Deno](https://deno.land/#installation) with `brew install deno`
 (or comparable).
 
 Second, install the Trellis CLI with:
