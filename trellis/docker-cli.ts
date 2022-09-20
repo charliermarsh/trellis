@@ -59,31 +59,3 @@ export async function dockerPush(nameTag: string, options?: {
   });
   return await process.status();
 }
-
-/**
- * Run `docker cp`.
- */
-export async function dockerCp(
-  srcPath: string,
-  destPath: string,
-  options?: {
-    stdout?: "inherit" | "piped" | "null" | number;
-    stderr?: "inherit" | "piped" | "null" | number;
-    stdin?: "inherit" | "piped" | "null" | number;
-  },
-): Promise<Deno.ProcessStatus> {
-  // Build the Docker image.
-  const process = Deno.run({
-    cmd: [
-      "docker",
-      "cp",
-      srcPath,
-      destPath,
-    ],
-    env: {
-      "DOCKER_SCAN_SUGGEST": "false",
-    },
-    ...options,
-  });
-  return await process.status();
-}
