@@ -1,7 +1,7 @@
 import "https://deno.land/x/dotenv/load.ts";
 import { WebClient } from "https://deno.land/x/slack_web_api/mod.js";
 import { build, Image, run } from "../../../trellis/mod.ts";
-import buildStage from "./index.ts";
+import buildStage from "./mod.ts";
 
 export default async function runChecks({ notify }: { notify?: boolean }) {
   const image = await build(buildStage);

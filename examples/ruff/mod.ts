@@ -1,4 +1,4 @@
-import { Image } from "../../trellis/mod.ts";
+import { Image } from "https://deno.land/x/trellis@v0.0.3/mod.ts";
 import { BuildCargoProject } from "./commands.ts";
 
 const buildStage = Image.from("rust:1.63")

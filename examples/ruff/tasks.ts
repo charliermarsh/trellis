@@ -1,5 +1,5 @@
-import { build, Image, run } from "../../trellis/mod.ts";
-import { devStage } from "./index.ts";
+import { build, Image, run } from "https://deno.land/x/trellis@v0.0.3/mod.ts";
+import { devStage } from "./mod.ts";
 
 export default async function runChecks() {
   const image = await build(devStage);

@@ -28,7 +28,7 @@ export async function loadModule(file: string): Promise<Module> {
   }
 
   try {
-    return await import(buildFile);
+    return await import(`file://${buildFile}`);
   } catch (err) {
     console.error(
       `${red(bold("error"))}: ${white("Failed to import:")} ${buildFile}`,
@@ -45,13 +45,13 @@ export async function loadModule(file: string): Promise<Module> {
 export function showImages(file: string, exportNames: string[]) {
   for (const exportName of exportNames) {
     if (exportName === "default") {
-      if (file === "index.ts") {
+      if (file === "mod.ts") {
         console.log(`- ${bold(green(exportName))} (trellis build)`);
       } else {
         console.log(`- ${bold(green(exportName))} (trellis build ${file})`);
       }
     } else {
-      if (file === "index.ts") {
+      if (file === "mod.ts") {
         console.log(
           `- ${green(exportName)} (trellis build --target ${exportName})`,
         );
@@ -72,13 +72,13 @@ export function showImages(file: string, exportNames: string[]) {
 export function showTasks(file: string, exportNames: string[]) {
   for (const exportName of exportNames) {
     if (exportName === "default") {
-      if (file === "index.ts") {
+      if (file === "mod.ts") {
         console.log(`- ${bold(cyan(exportName))} (trellis run)`);
       } else {
         console.log(`- ${bold(cyan(exportName))} (trellis run ${file})`);
       }
     } else {
-      if (file === "index.ts") {
+      if (file === "mod.ts") {
         console.log(
           `- ${cyan(exportName)} (trellis run --target ${exportName})`,
         );
