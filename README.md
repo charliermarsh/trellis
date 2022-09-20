@@ -10,11 +10,20 @@ platform).
 
 ### Installation
 
-First, [install Deno](https://deno.land/#installation) with `brew install deno`
-or comparable.
+First, [install Deno](https://deno.land/#installation) with: `brew install deno`
+(or comparable).
 
-Second, install the Trellis CLI with
-`deno install --allow-run=docker --allow-net --allow-write --allow-env --allow-read -f https://deno.land/x/trellis@v0.0.5/cli.ts`.
+Second, install the Trellis CLI with:
+
+```shell
+deno install \
+    --allow-run=docker \
+    --allow-net \
+    --allow-write \
+    --allow-env \
+    --allow-read \
+    https://deno.land/x/trellis@v0.0.5/cli.ts
+```
 
 Run `trellis --help` to verify your installation:
 
