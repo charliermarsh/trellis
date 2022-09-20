@@ -1,5 +1,5 @@
 import { Codegen } from "./codegen.ts";
-import { Env, Run } from "./instructions.ts";
+import { Run } from "./instructions.ts";
 
 export class Command implements Codegen {
   instructions: Codegen[];
@@ -10,34 +10,6 @@ export class Command implements Codegen {
 
   codegen(): string {
     return this.instructions.map((layer) => layer.codegen()).join("\n");
-  }
-}
-
-export class InstallRustToolchain extends Command {
-  constructor(version: string) {
-    super([
-      new Env({
-        CARGO_HOME: "/",
-        RUSTUP_HOME: "/",
-      }),
-      new Run(
-        `curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain ${version}`,
-      ),
-    ]);
-  }
-}
-
-export class Cargo extends Command {
-  constructor(command: string) {
-    super([
-      new Run(`cargo ${command}`, [
-        {
-          type: "cache",
-          target: "/.cargo/registry",
-          sharing: "locked",
-        },
-      ]),
-    ]);
   }
 }
 
