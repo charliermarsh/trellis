@@ -19,12 +19,12 @@ jobs:
         uses: denoland/setup-deno@v1
         with:
           deno-version: "1.25.2"
-      - name: "Install TypeKit"
-        working-directory: ./typekit
+      - name: "Install Trellis"
+        working-directory: ./trellis
         run: deno install --allow-run=docker --allow-net --allow-write --allow-env --allow-read -f cli.ts
       - name: "Build the image"
         working-directory: ./examples/typescript-monorepo/build
-        run: typekit build index.ts
+        run: trellis build index.ts
       - name: "Run checks"
         working-directory: ./examples/typescript-monorepo/build
-        run: typekit run tasks.ts
+        run: trellis run tasks.ts

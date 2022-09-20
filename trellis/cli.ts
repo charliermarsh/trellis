@@ -15,7 +15,7 @@ import { Image } from "./image.ts";
 import { solve } from "./solver.ts";
 
 /**
- * List the buildable Images and runnable Tasks in a TypeKit file.
+ * List the buildable Images and runnable Tasks in a TypeScript file.
  */
 async function lsCommand(file: string) {
   const module = await loadModule(file);
@@ -38,7 +38,7 @@ async function lsCommand(file: string) {
 }
 
 /**
- * Preview the Dockerfile for an Image defined in a TypeKit file.
+ * Preview the Dockerfile for an Image defined in a TypeScript file.
  */
 async function previewCommand(file: string, target?: string) {
   const module = await loadModule(file);
@@ -85,7 +85,7 @@ async function previewCommand(file: string, target?: string) {
 }
 
 /**
- * Build an Image defined in a TypeKit file.
+ * Build an Image defined in a TypeScript file.
  */
 async function buildCommand(
   file: string,
@@ -137,7 +137,7 @@ async function buildCommand(
     const sha = new Sha256().update(Deno.cwd()).update(file).update(
       target || "default",
     ).hex();
-    image = image.withTag(`typekit/${sha}`);
+    image = image.withTag(`trellis/${sha}`);
   }
 
   // Build (and push) the Docker image.
@@ -155,7 +155,7 @@ async function buildCommand(
 }
 
 /**
- * Run a Task defined in a TypeKit file.
+ * Run a Task defined in a TypeScript file.
  */
 async function runCommand(file: string, target?: string) {
   const module = await loadModule(file);
@@ -208,16 +208,16 @@ async function runCommand(file: string, target?: string) {
 }
 
 /**
- * Entrypoint to the typekit CLI.
+ * Entrypoint to the Trellis CLI.
  */
 async function main() {
-  const program = new Command("typekit");
+  const program = new Command("trellis");
   program.usage("build index.ts");
   program.version("0.0.1");
 
   program
     .command("ls [file]")
-    .description("List all Images and Tasks available in a TypeKit file")
+    .description("List all Images and Tasks available in a TypeScript file")
     .action((file: string | undefined) => {
       lsCommand(file || "index.ts");
     });
@@ -225,15 +225,21 @@ async function main() {
   program
     .command("preview [file]")
     .description("Preview a Dockerfile")
-    .option("-t, --target <TARGET>", "Image to build within the TypeKit file")
+    .option(
+      "-t, --target <TARGET>",
+      "Image to build within the TypeScript file",
+    )
     .action((file: string | undefined, options: { target?: string }) =>
       previewCommand(file || "index.ts", options.target)
     );
 
   program
     .command("build [file]")
-    .description("Build an Image defined in a TypeKit file")
-    .option("-t, --target <TARGET>", "Image to build within the TypeKit file")
+    .description("Build an Image defined in a TypeScript file")
+    .option(
+      "-t, --target <TARGET>",
+      "Image to build within the TypeScript file",
+    )
     .option("--push", "Whether to push the image to a remote registry")
     .action((
       file: string | undefined,
@@ -242,8 +248,8 @@ async function main() {
 
   program
     .command("run [file]")
-    .description("Run a Task defined in a TypeKit file")
-    .option("-t, --target <TARGET>", "Task to run within the TypeKit file")
+    .description("Run a Task defined in a TypeScript file")
+    .option("-t, --target <TARGET>", "Task to run within the TypeScript file")
     .action((file: string | undefined, options: { target?: string }) =>
       runCommand(file || "index.ts", options.target)
     );

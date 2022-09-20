@@ -1,4 +1,4 @@
-import { Cargo, Image, InstallRustToolchain } from "../../../typekit/index.ts";
+import { Cargo, Image, InstallRustToolchain } from "../../../trellis/index.ts";
 
 const UBUNTU_VERSION = "20.04";
 const RUST_VERSION = "1.63.0";

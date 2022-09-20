@@ -46,20 +46,20 @@ export function showImages(file: string, exportNames: string[]) {
   for (const exportName of exportNames) {
     if (exportName === "default") {
       if (file === "index.ts") {
-        console.log(`- ${bold(green(exportName))} (typekit build)`);
+        console.log(`- ${bold(green(exportName))} (trellis build)`);
       } else {
-        console.log(`- ${bold(green(exportName))} (typekit build ${file})`);
+        console.log(`- ${bold(green(exportName))} (trellis build ${file})`);
       }
     } else {
       if (file === "index.ts") {
         console.log(
-          `- ${green(exportName)} (typekit build --target ${exportName})`,
+          `- ${green(exportName)} (trellis build --target ${exportName})`,
         );
       } else {
         console.log(
           `- ${
             green(exportName)
-          } (typekit build ${file} --target ${exportName})`,
+          } (trellis build ${file} --target ${exportName})`,
         );
       }
     }
@@ -73,18 +73,18 @@ export function showTasks(file: string, exportNames: string[]) {
   for (const exportName of exportNames) {
     if (exportName === "default") {
       if (file === "index.ts") {
-        console.log(`- ${bold(cyan(exportName))} (typekit run)`);
+        console.log(`- ${bold(cyan(exportName))} (trellis run)`);
       } else {
-        console.log(`- ${bold(cyan(exportName))} (typekit run ${file})`);
+        console.log(`- ${bold(cyan(exportName))} (trellis run ${file})`);
       }
     } else {
       if (file === "index.ts") {
         console.log(
-          `- ${cyan(exportName)} (typekit run --target ${exportName})`,
+          `- ${cyan(exportName)} (trellis run --target ${exportName})`,
         );
       } else {
         console.log(
-          `- ${cyan(exportName)} (typekit run ${file} --target ${exportName})`,
+          `- ${cyan(exportName)} (trellis run ${file} --target ${exportName})`,
         );
       }
     }
