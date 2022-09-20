@@ -1,112 +1,358 @@
 # Trellis
 
-_Write Dockerfiles in TypeScript._
+_Write Dockerfiles, Jenkinsfiles, and more, in TypeScript._
 
-Trellis is a portable CI/CD tool. With Trellis, you can write Dockerfiles and
-CI/CD pipelines in TypeScript, then run them anywhere, be it locally or on a
-hosted platform.
+Trellis is a portable CI/CD tool. With Trellis, you can define your Dockerfiles
+and CI/CD pipelines in TypeScript, and run them anywhere (locally or on a hosted
+platform).
 
-Trellis takes inspiration from tools like [Earthly](https://earthly.dev/),
-[Dagger](https://dagger.io/), and [Tangram](https://tangram.dev/).
+## Usage
+
+### Installation
+
+TODO(charlie): Installation via deno.land.
+
+### Define a Docker image
+
+Export any `Image` to enable Dockerfile generation and image building with
+Trellis.
+
+For example, to define an Ubuntu image with a few useful utilities installed,
+you could write the following `index.ts` file:
+
+```typescript
+import { Image } from "../../trellis/index.ts";
+
+const UBUNTU_VERSION = "20.04";
+
+export const buildStage = Image.from(`ubuntu:${UBUNTU_VERSION}`)
+  .workDir("/root")
+  .aptInstall([
+    "curl",
+    "jq",
+    "git",
+  ]);
+```
+
+Running `trellis ls index.ts` lists the buildable Images:
+
+```shell
+>>> trellis ls index.ts
+Images:
+- buildStage (trellis build --target buildStage)
+```
+
+We can preview the generated Dockerfile with
+`trellis preview index.ts --target buildStage`:
+
+```shell
+>>> trellis preview --target buildStage
+#syntax=docker/dockerfile:1.4
+
+FROM ubuntu:20.04 AS stage-0
+WORKDIR /root
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl git jq
+```
+
+We can build the image with `trellis build --target buildStage`:
+
+```shell
+>>> trellis build --target buildStage
+[+] Building 0.6s (11/11) FINISHED
+ => [internal] load build definition from Dockerfile                                                 0.0s
+ => => transferring dockerfile: 335B                                                                 0.0s
+ => [internal] load .dockerignore                                                                    0.0s
+ => => transferring context: 2B                                                                      0.0s
+ => resolve image config for docker.io/docker/dockerfile:1.4                                         0.2s
+ => CACHED docker-image://docker.io/docker/dockerfile:1.4@sha256:9ba7531bd80fb0a858632727cf7a112fbf  0.0s
+ => [internal] load build definition from Dockerfile                                                 0.0s
+ => [internal] load .dockerignore                                                                    0.0s
+ => [internal] load metadata for docker.io/library/ubuntu:20.04                                      0.2s
+ => [stage-0 1/3] FROM docker.io/library/ubuntu:20.04@sha256:35ab2bf57814e9ff49e365efd5a5935b6915ee  0.0s
+ => CACHED [stage-0 2/3] WORKDIR /root                                                               0.0s
+ => CACHED [stage-0 3/3] RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=c  0.0s
+ => exporting to image                                                                               0.0s
+ => => exporting layers                                                                              0.0s
+ => => writing image sha256:17f750ba9a4becf38ce4d584d0de4793bfd6a8139674c3b332cdcdf6525ea8d9         0.0s
+ => => naming to docker.io/trellis/db112e211de238c035a9fd3bbcbd5c417aafc5ee96a8c24d99d4caf81a759903  0.0s
+√ Build: trellis/db112e211de238c035a9fd3bbcbd5c417aafc5ee96a8c24d99d4caf81a759903
+```
+
+### Define a CI/CD pipeline
+
+Export any function from a TypeScript module to enable task execution with
+Trellis.
+
+For example, to define a CI pipeline to verify that our command-line utilities
+were successfully installed, you could write the following `tasks.ts` file:
+
+```typescript
+import { build, Image, run } from "../../trellis/index.ts";
+import { buildStage } from "./index.ts";
+
+export default async function runChecks() {
+  const image = await build(buildStage);
+
+  const checkCurl = Image.from(image).run(
+    "curl --help",
+  );
+  const checkJq = Image.from(image).run(
+    "jq --help",
+  );
+  const checkGit = Image.from(image).run(
+    "git --help",
+  );
+
+  await Promise.all([
+    run(checkCurl),
+    run(checkJq),
+    run(checkGit),
+  ]);
+}
+```
+
+Running `trellis ls tasks.ts` lists the executable Tasks:
+
+```shell
+>>> trellis ls tasks.ts
+Tasks:
+- default (trellis run tasks.ts)
+```
+
+We can execute the task locally with `trellis run tasks.ts`:
+
+```shell
+>>> trellis run tasks.ts
+[+] Building 1.1s (13/13) FINISHED
+ => [internal] load build definition from Dockerfile                                                 0.0s
+ => => transferring dockerfile: 335B                                                                 0.0s
+ => [internal] load .dockerignore                                                                    0.0s
+ => => transferring context: 2B                                                                      0.0s
+ => resolve image config for docker.io/docker/dockerfile:1.4                                         0.5s
+ => [auth] docker/dockerfile:pull token for registry-1.docker.io                                     0.0s
+ => CACHED docker-image://docker.io/docker/dockerfile:1.4@sha256:9ba7531bd80fb0a858632727cf7a112fbf  0.0s
+ => [internal] load .dockerignore                                                                    0.0s
+ => [internal] load build definition from Dockerfile                                                 0.0s
+ => [internal] load metadata for docker.io/library/ubuntu:20.04                                      0.3s
+ => [auth] library/ubuntu:pull token for registry-1.docker.io                                        0.0s
+ => [stage-0 1/3] FROM docker.io/library/ubuntu:20.04@sha256:35ab2bf57814e9ff49e365efd5a5935b6915ee  0.0s
+ => CACHED [stage-0 2/3] WORKDIR /root                                                               0.0s
+ => CACHED [stage-0 3/3] RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=c  0.0s
+ => exporting to image                                                                               0.0s
+ => => exporting layers                                                                              0.0s
+ => => writing image sha256:17f750ba9a4becf38ce4d584d0de4793bfd6a8139674c3b332cdcdf6525ea8d9         0.0s
+ => => naming to docker.io/trellis/adf8a603d1ab539848d89f68491e1b9213c1ca498f3f68d871e1b59c4c7de601  0.0s
+√ Build: trellis/adf8a603d1ab539848d89f68491e1b9213c1ca498f3f68d871e1b59c4c7de601
+√ Run: git --help
+√ Run: jq --help
+√ Run: curl --help
+```
+
+### Trellis on GitHub Actions
+
+Trellis runs on Deno, making it a one-step installation on GitHub Actions:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Install Deno"
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: "1.25.2"
+      - name: "Install Trellis"
+        working-directory: ./trellis
+        run: deno install --allow-run=docker --allow-net --allow-write --allow-env --allow-read -f cli.ts
+      - name: "Build the image"
+        working-directory: ./examples/typescript
+        run: trellis build trellis/index.ts
+```
 
 ## Motivation
 
-Trellis can be used in several ways and so fits into several framings:
+Trellis is motivated by the following observations, drawn from the experience of
+maintaining large, containerized CI/CD systems.
 
-1. "Write Dockerfiles in TypeScript"
-2. "Write Jenkinsfiles in TypeScript" (or any CI/CD pipeline)
-3. "Write command-line tools in TypeScript" (this is more tenuous)
+1. **Dockerfiles are hard to _maintain_.** Over time, large systems tend to
+   accumulate collections of Dockerfiles with similar subsections, but no shared
+   abstractions.
 
-Why do this? Much of it is motivated by what I see as failings of Jenkins but,
-in my opinion, also apply to other CI/CD systems.
+2. **_Efficient_ Dockerfiles are hard to _write_.** Writing a Dockerfile that's
+   maximally cacheable, with a minimal footprint, requires significant
+   expertise. For example, to `apt-get install`, the
+   [Docker documentation](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#sort-multi-line-arguments)
+   recommends the following:
 
-- Dockerfiles are hard to maintain. Writing them in TypeScript gives you
-  autocompletion out of the box, and enables you to take advantage of
-  composition, modularity, and abstraction. By leveraging types, we can make
-  certain Dockerfile mistakes "impossible" (like relying on non-existent
-  artifacts).
-- Writing _efficient_ Dockerfiles is hard. As BuildKit has expanded, Dockerfile
-  has become too low-level. Trellis gives you higher-level primitives.
-- CI/CD should be runnable locally as a first-class primitive.
-- CI/CD should be portable.
-- Writing CI/CD in TypeScript gives us immediate access to a familiar ecosystem.
-  For example, if we want to ping Slack within a CI script, we just
-  `npm install` the Slack client (as opposed to install a Slack plugin on
-  Jenkins).
-- Using Deno means that installation is extremely simple.
+```shell
+RUN apt-get update && apt-get install -y \
+  # Be sure to sort dependencies to maximize cacheability.
+  bzr \
+  cvs \
+  git \
+  mercurial \
+  subversion \
+  # Clear the apt cache to minimize disk size.
+  && rm -rf /var/lib/apt/lists/*
+```
 
-A significant goal here is that running locally shouldn't mean that your builds
-happen locally. And we should handle caching and intelligent builds
-automatically (unlike GitHub Actions) or other systems where caching always
-comes last. Imagine if you could run a CI command and get zero-configuration
-access to running builds on the cloud while orchestrating from your local
-machine? Cloud compute that feels local.
+3. **The CI/CD iteration loop is _too slow_.** The common workflow for writing a
+   new GitHub Actions pipeline, Jenkinsfile, etc., is to commit, push, wait for
+   the system to acknowledge your change, then wait for your task to fail —
+   tens, or even hundreds of times in a row. With existing CI solutions, you're
+   writing code to run on an unfamiliar system, outside your control, without a
+   first-class development workflow.
 
-## Design goals
+4. **CI/CD systems create _significant lock-in_.** Porting your Jenkinsfiles or
+   YAML files to GitHub Actions, or vice versa, requires grappling with
+   platform-specific abstractions.
 
-- Feel similar to Dockerfile
+Trellis solves these problems through a few significant design decisions.
+
+First: **With Trellis, you define your Dockerfiles and CI/CD pipelines in
+TypeScript.** This gives you the power of a "full" programming language while
+retaining a declarative API. With TypeScript, we get the following benefits:
+
+1. Autocompletion out-of-the-box.
+2. Certain mistakes become "impossible" (e.g., copying non-existent artifacts
+   between stages).
+3. Access to abstraction, modularity, and composability: define common build
+   stages and higher-level primitives to avoid writing complex `apt-get install`
+   steps by hand.
+4. Immediate access to a rich, familiar ecosystem. Pinging Slack from a CI
+   pipeline is as simple as importing the Slack client from `deno.land`.
+
+Second: **Trellis makes local execution a first-class primitive.** CI/CD
+shouldn't feel like an entirely separate system; it should feel like running
+code. Trellis is built on Deno and highly portable. You can run `trellis build`
+locally just as you would on GitHub Actions or elsewhere. In this way, Trellis
+takes inspiration from tools like [Earthly](https://earthly.dev/) and
+[Dagger](https://dagger.io/).
+
+Trellis has a few aspirational goals that aren't yet realized:
+
+- **Enable cloud-accelerated builds out-of-the-box.** Make cloud-based execution
+  feel local. Kicking off a build locally should resolve to the same compute
+  resources as on the cloud. Builds should initialize in milliseconds.
+- **Provide a full CI/CD system out-of-the-box.** Define your CI/CD workflows
+  (cron jobs, build triggers, etc.) in code, and deploy them to a hosted Trellis
+  server with zero configuration.
 
 ## CLI
 
+Trellis is both a library and a command-line interface. With Trellis, you export
+`Image` definitions and runnable functions (called "Tasks") from your TypeScript
+modules, then execute them via the `trellis` CLI.
+
 ### `trellis preview`
 
-Generate a Dockerfile from a Trellis build definition.
+Generate a Dockerfile defined in a TypeScript module.
+
+```shell
+Usage: trellis preview [options] [file]
+
+Generate a Dockerfile defined in a TypeScript module
+
+Options:
+  -t, --target <TARGET>  Image to build within the TypeScript module
+  -h, --help             display help for command
+```
 
 ### `trellis build`
 
-Build a Docker image from a Trellis build definition.
+Build an Image defined in a TypeScript module.
+
+```shell
+Usage: trellis build [options] [file]
+
+Build an Image defined in a TypeScript module
+
+Options:
+  -t, --target <TARGET>  Image to build within the TypeScript module
+  --push                 Whether to push the image to a remote registry
+  -h, --help             display help for command
+```
 
 ### `trellis ls`
 
-List the buildable Images and runnable Tasks defined in a Trellis file.
+List all Images and Tasks available in a TypeScript module.
+
+```shell
+Usage: trellis ls [options] [file]
+
+List all Images and Tasks available in a TypeScript module
+
+Options:
+  -h, --help  display help for command
+```
 
 ### `trellis run`
 
-Run a Trellis Task.
+Run a Task defined in a TypeScript module.
+
+```Usage: trellis run [options] [file]
+Run a Task defined in a TypeScript module
+
+Options:
+  -t, --target <TARGET>  Task to run within the TypeScript module
+  -h, --help             display help for command
+```
 
 ## Examples
 
-1. Rust (Rocket) webserver
-2. TypeScript monorepo
-3. Linux development container
-4. Nix-backed development container
+The `./examples` directory demonstrates a variety of use-cases for Trellis.
+Trellis is flexible and can be used solely to generate Dockerfiles for other
+systems, or for defining entire CI/CD pipelines.
 
-## Roadmap
-
-- Auto-generate Trellis files like Nixpacks
-- Automatically connect to (extremely fast) cloud compute
-- Create CI-like abstractions around job configuration and workflow state, with
-  infrastructure-as-code and one-click deployment
-
-### Documentation
-
-- Instructions for running locally or on CI.
-- An example of using Trellis with Pulumi.
-
-### Functionality
-
-- Ability to save artifacts locally.
-- Ability to run builds remotely.
-- Ability to use a shared inline cache.
+- `rocket`: A Rust webserver atop the [Rocket](https://rocket.rs/) framework.
+  Demonstrates multi-stage builds and deployment via [Fly.io](https://fly.io/)
+  by leveraging `trellis preview`.
+- `ruff`: A Rust command-line tool. Demonstrates efficient builds and CI checks.
+- `runc`: A Linux development container. Demonstrates generating artifacts with
+  Trellis and copying them back to the host machine.
+- `turborepo`: Turborepo's own Docker example, modified to generate Dockerfiles
+  with Trellis.
+- `typescript`: A TypeScript monorepo. Demonstrates efficient builds and CI
+  checks, along with consolidating constants (like the list of TypeScript
+  workspaces).
 
 ## Architecture
 
-### Caching
+Trellis is built on Deno, which is distributed as a single binary executable
+with no external dependencies. Using Deno means that installing Trellis
+_anywhere_) is as simple as `deno install ...` — there's no `package.json`, no
+`npm install`, and no TypeScript transpilation step.
 
-- Should we enable shared inline caches?
-- How would we handle multi-stage builds? Would we automatically push all
-  stages?
+Similar to [Nixpacks](https://nixpacks.com/docs/how-it-works), Trellis generates
+Dockerfiles. This simplifies Trellis's implementation, but also enables users to
+leverage Trellis for Dockerfile generation alone, rather than as a complete
+CI/CD solution.
 
-### Remote server
+`trellis build` and `trellis run` depend on Docker and assume that the Docker
+daemon is locally accessible.
 
-- Create a GCE instance to act as the build server.
-- Create an NFS server.
-- When we run `docker build`, collect the build context. We'll actually parse
-  the build context by looking at ADD and COPY commands.
-- For each file, compute a checksum, and send it up to the server; server
-  replies with the files it needs; client sends them up.
-- Connect to the server, and run the trellis commands.
-- (Don't worry about local copies for now.)
+## Roadmap
+
+1. Automatically connect to (extremely fast) cloud compute for build and task
+   execution. Make cloud-based builds feel local.
+2. Create abstractions around "job configuration" and "workflow state", with
+   infrastructure-as-code and one-click deployments, turning Trellis into a
+   standalone CI solution.
+3. Auto-generate Trellis files from source code (like
+   [Nixpacks](https://github.com/railwayapp/nixpacks)).
 
 ## License
 

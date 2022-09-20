@@ -15,7 +15,7 @@ import { Image } from "./image.ts";
 import { solve } from "./solver.ts";
 
 /**
- * List the buildable Images and runnable Tasks in a TypeScript file.
+ * List the buildable Images and runnable Tasks in a TypeScript module.
  */
 async function lsCommand(file: string) {
   const module = await loadModule(file);
@@ -38,7 +38,7 @@ async function lsCommand(file: string) {
 }
 
 /**
- * Preview the Dockerfile for an Image defined in a TypeScript file.
+ * Generate a Dockerfile defined in a TypeScript module.
  */
 async function previewCommand(file: string, target?: string) {
   const module = await loadModule(file);
@@ -85,7 +85,7 @@ async function previewCommand(file: string, target?: string) {
 }
 
 /**
- * Build an Image defined in a TypeScript file.
+ * Build an Image defined in a TypeScript module.
  */
 async function buildCommand(
   file: string,
@@ -155,7 +155,7 @@ async function buildCommand(
 }
 
 /**
- * Run a Task defined in a TypeScript file.
+ * Run a Task defined in a TypeScript module.
  */
 async function runCommand(file: string, target?: string) {
   const module = await loadModule(file);
@@ -217,17 +217,17 @@ async function main() {
 
   program
     .command("ls [file]")
-    .description("List all Images and Tasks available in a TypeScript file")
+    .description("List all Images and Tasks available in a TypeScript module")
     .action((file: string | undefined) => {
       lsCommand(file || "index.ts");
     });
 
   program
     .command("preview [file]")
-    .description("Preview a Dockerfile")
+    .description("Generate a Dockerfile defined in a TypeScript module")
     .option(
       "-t, --target <TARGET>",
-      "Image to build within the TypeScript file",
+      "Image to build within the TypeScript module",
     )
     .action((file: string | undefined, options: { target?: string }) =>
       previewCommand(file || "index.ts", options.target)
@@ -235,10 +235,10 @@ async function main() {
 
   program
     .command("build [file]")
-    .description("Build an Image defined in a TypeScript file")
+    .description("Build an Image defined in a TypeScript module")
     .option(
       "-t, --target <TARGET>",
-      "Image to build within the TypeScript file",
+      "Image to build within the TypeScript module",
     )
     .option("--push", "Whether to push the image to a remote registry")
     .action((
@@ -248,8 +248,8 @@ async function main() {
 
   program
     .command("run [file]")
-    .description("Run a Task defined in a TypeScript file")
-    .option("-t, --target <TARGET>", "Task to run within the TypeScript file")
+    .description("Run a Task defined in a TypeScript module")
+    .option("-t, --target <TARGET>", "Task to run within the TypeScript module")
     .action((file: string | undefined, options: { target?: string }) =>
       runCommand(file || "index.ts", options.target)
     );
