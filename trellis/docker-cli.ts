@@ -11,6 +11,7 @@ export async function dockerBuild(
   flags: {
     tag?: string;
     quiet?: boolean;
+    rm?: boolean;
     output?: { type: "local"; dest: string };
   },
   options?: {
@@ -25,6 +26,7 @@ export async function dockerBuild(
       "docker",
       "build",
       ...(flags.quiet ? ["--quiet"] : []),
+      ...(flags.rm ? ["--rm"] : []),
       ...(flags.tag ? ["-t", flags.tag] : []),
       ...(flags.output
         ? ["--output", `type=${flags.output.type},dest=${flags.output.dest}`]
@@ -34,6 +36,7 @@ export async function dockerBuild(
       path,
     ],
     env: {
+      "DOCKER_BUILDKIT": "1",
       "DOCKER_SCAN_SUGGEST": "false",
     },
     ...options,
@@ -53,6 +56,7 @@ export async function dockerPush(nameTag: string, options?: {
   const process = Deno.run({
     cmd: ["docker", "push", nameTag],
     env: {
+      "DOCKER_BUILDKIT": "1",
       "DOCKER_SCAN_SUGGEST": "false",
     },
     ...options,

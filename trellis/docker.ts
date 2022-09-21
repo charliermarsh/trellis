@@ -68,9 +68,14 @@ export async function run(image: Image): Promise<Deno.ProcessStatus> {
   const tempFilePath = join(tempDirPath, "Dockerfile");
   await Deno.writeTextFile(tempFilePath, solve(image));
 
-  const status = await dockerBuild(".", tempFilePath, { quiet: true }, {
-    "stdout": "null",
-  });
+  const status = await dockerBuild(
+    ".",
+    tempFilePath,
+    { quiet: true, rm: true },
+    {
+      "stdout": "null",
+    },
+  );
   if (status.success) {
     kia.succeed();
   } else {
