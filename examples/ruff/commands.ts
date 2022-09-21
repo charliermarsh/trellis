@@ -10,8 +10,7 @@ export class BuildCargoProject extends Command {
       new Run("cargo build", [
         {
           type: "cache",
-          target: "/.cargo/registry",
-          sharing: "locked",
+          target: "/usr/local/cargo/registry",
         },
       ]),
       // Build user code.
@@ -20,8 +19,7 @@ export class BuildCargoProject extends Command {
       new Run("cargo build", [
         {
           type: "cache",
-          target: "/.cargo/registry",
-          sharing: "locked",
+          target: "/usr/local/cargo/registry",
         },
       ]),
     ]);
