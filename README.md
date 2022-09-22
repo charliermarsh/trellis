@@ -127,15 +127,15 @@ import { build, Image, run } from "https://deno.land/x/trellis@v0.0.6/mod.ts";
 import { buildStage } from "./mod.ts";
 
 export default async function runChecks() {
-  const image = await build(buildStage);
+  await build(buildStage);
 
-  const checkCurl = Image.from(image).run(
+  const checkCurl = Image.from(buildStage).run(
     "curl --help",
   );
-  const checkJq = Image.from(image).run(
+  const checkJq = Image.from(buildStage).run(
     "jq --help",
   );
-  const checkGit = Image.from(image).run(
+  const checkGit = Image.from(buildStage).run(
     "git --help",
   );
 
