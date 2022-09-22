@@ -25,7 +25,7 @@ deno install \
     --allow-write \
     --allow-env \
     --allow-read \
-    https://deno.land/x/trellis@v0.0.5/cli.ts
+    https://deno.land/x/trellis@v0.0.6/cli.ts
 ```
 
 Run `trellis --help` to verify your installation:
@@ -57,7 +57,7 @@ For example, to define an Ubuntu image with a few useful utilities installed,
 you could write the following `mod.ts` file:
 
 ```typescript
-import { Image } from "https://deno.land/x/trellis@v0.0.5/mod.ts";
+import { Image } from "https://deno.land/x/trellis@v0.0.6/mod.ts";
 
 const UBUNTU_VERSION = "20.04";
 
@@ -123,7 +123,7 @@ For example, to define a CI pipeline to verify that our command-line utilities
 were successfully installed, you could write the following `tasks.ts` file:
 
 ```typescript
-import { build, Image, run } from "https://deno.land/x/trellis@v0.0.5/mod.ts";
+import { build, Image, run } from "https://deno.land/x/trellis@v0.0.6/mod.ts";
 import { buildStage } from "./mod.ts";
 
 export default async function runChecks() {
@@ -193,7 +193,7 @@ The `trellis.config.ts` should contain a single default export consisting of a
 `defineConfig` invocation, like this:
 
 ```typescript
-import { defineConfig } from "https://deno.land/x/trellis@v0.0.5/mod.ts";
+import { defineConfig } from "https://deno.land/x/trellis@v0.0.6/mod.ts";
 
 export default defineConfig({
   engine: "docker",
@@ -211,7 +211,7 @@ installation (`brew install depot/tap/depot` or similar, followed by
 `deplot login`), then define a `trellis.config.ts` like so:
 
 ```typescript
-import { defineConfig } from "https://deno.land/x/trellis@v0.0.5/mod.ts";
+import { defineConfig } from "https://deno.land/x/trellis@v0.0.6/mod.ts";
 
 export default defineConfig({
   engine: {
@@ -251,7 +251,7 @@ jobs:
           deno-version: "1.25.2"
       - name: "Install Trellis"
         working-directory: ./trellis
-        run: deno install --allow-run=docker --allow-net --allow-write --allow-env --allow-read https://deno.land/x/trellis@v0.0.5/cli.ts
+        run: deno install --allow-run=docker --allow-net --allow-write --allow-env --allow-read https://deno.land/x/trellis@v0.0.6/cli.ts
       - name: "Build the image"
         working-directory: ./examples/typescript
         run: trellis build trellis/mod.ts
