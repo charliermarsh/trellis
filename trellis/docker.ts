@@ -1,6 +1,7 @@
 /**
  * High-level interface to the Docker CLI.
  */
+import { Command } from "./commands.ts";
 import { useContext } from "./context.ts";
 import { join, Kia, Sha256 } from "./deps.ts";
 import { dockerBuild } from "./docker-cli.ts";
@@ -45,7 +46,11 @@ export async function build(image: Image, push?: boolean): Promise<string> {
 export async function run(image: Image): Promise<Deno.ProcessStatus> {
   const layer = image.layers[image.layers.length - 1];
   const kia = new Kia({
-    text: layer instanceof Run ? `Run: ${layer.sh}` : "Run task",
+    text: layer instanceof Run
+      ? `Run: ${layer.sh}`
+      : layer instanceof Command && layer.instructions instanceof Run
+      ? `Run: ${layer.instructions.sh}`
+      : "Run task",
   });
   if (!(Deno.env.get("CI") === "true")) kia.start();
 
@@ -54,9 +59,15 @@ export async function run(image: Image): Promise<Deno.ProcessStatus> {
   await Deno.writeTextFile(tempFilePath, solve(image));
 
   const { engine } = useContext();
-  const status = await dockerBuild(engine, ".", tempFilePath, { quiet: true }, {
-    "stdout": "null",
-  });
+  const status = await dockerBuild(
+    engine,
+    ".",
+    tempFilePath,
+    { quiet: false },
+    {
+      "stdout": "null",
+    },
+  );
 
   if (status.success) {
     kia.succeed();

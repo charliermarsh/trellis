@@ -1,21 +1,22 @@
 import { build, Image, run } from "../../trellis/mod.ts";
-import { devStage } from "./mod.ts";
+import { Cargo } from "./commands.ts";
+import { buildStage } from "./mod.ts";
 
 export default async function runChecks() {
-  const checkFormat = Image.from(devStage).run(
-    "cargo fmt --check",
+  await build(buildStage);
+  await run(
+    Image.from(buildStage).with(
+      new Cargo("fmt --locked --check"),
+    ),
   );
-  const checkLint = Image.from(devStage).run(
-    "cargo clippy -- -D warnings",
+  await run(
+    Image.from(buildStage).with(
+      new Cargo("test --locked"),
+    ),
   );
-  const checkTests = Image.from(devStage).run(
-    "cargo test",
+  await run(
+    Image.from(buildStage).with(
+      new Cargo("clippy --locked -- -D warnings"),
+    ),
   );
-
-  await build(devStage);
-  await Promise.all([
-    run(checkFormat),
-    run(checkLint),
-    run(checkTests),
-  ]);
 }

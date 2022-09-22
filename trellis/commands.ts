@@ -2,14 +2,18 @@ import { Codegen } from "./codegen.ts";
 import { Run } from "./instructions.ts";
 
 export class Command implements Codegen {
-  instructions: Codegen[];
+  instructions: Codegen | Codegen[];
 
-  constructor(instructions: Codegen[]) {
+  constructor(instructions: Codegen | Codegen[]) {
     this.instructions = instructions;
   }
 
   codegen(): string {
-    return this.instructions.map((layer) => layer.codegen()).join("\n");
+    if (Array.isArray(this.instructions)) {
+      return this.instructions.map((layer) => layer.codegen()).join("\n");
+    } else {
+      return this.instructions.codegen();
+    }
   }
 }
 
