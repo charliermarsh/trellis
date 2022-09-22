@@ -15,6 +15,7 @@ import {
   Volume,
   WorkDir,
 } from "./instructions.ts";
+import { id } from "./mount.ts";
 import { solve } from "./solver.ts";
 
 export {
@@ -26,6 +27,7 @@ export {
   Entrypoint,
   Env,
   Expose,
+  id,
   Image,
   Label,
   Run,

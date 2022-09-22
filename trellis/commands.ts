@@ -1,4 +1,5 @@
 import { Instruction, Run } from "./instructions.ts";
+import { id } from "./mount.ts";
 
 export function aptInstall(dependencies: string[]): Instruction[] {
   return [
@@ -11,13 +12,15 @@ export function aptInstall(dependencies: string[]): Instruction[] {
       [
         {
           type: "cache",
-          target: "/var/cache/apt",
           sharing: "locked",
+          target: "/var/cache/apt",
+          id: id("/var/cache/apt"),
         },
         {
           type: "cache",
-          target: "/var/lib/apt",
           sharing: "locked",
+          target: "/var/lib/apt",
+          id: id("/var/lib/apt"),
         },
       ],
     ),

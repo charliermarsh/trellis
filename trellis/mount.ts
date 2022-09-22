@@ -1,4 +1,6 @@
 // TODO(charlie): Implement other mount types.
+import { Sha256 } from "https://deno.land/std@0.156.0/hash/sha256.ts";
+
 export type Mount = {
   type: "cache";
   target: string;
@@ -33,4 +35,10 @@ export function serialize(mount: Mount): string {
         .join(",");
     }
   }
+}
+
+export function id(target: string) {
+  const cwdSha = new Sha256().update(Deno.cwd()).hex();
+  const targetSha = new Sha256().update(target).hex();
+  return `${cwdSha.slice(0, 8)}-${targetSha.slice(0, 8)}`;
 }

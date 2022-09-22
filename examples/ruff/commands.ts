@@ -1,4 +1,4 @@
-import { Copy, Run } from "../../trellis/mod.ts";
+import { Copy, id, Run } from "../../trellis/mod.ts";
 
 export function Cargo(subCommand: string) {
   return [
@@ -6,10 +6,17 @@ export function Cargo(subCommand: string) {
       {
         type: "cache",
         target: "/usr/local/cargo/registry",
+        id: id("/usr/local/cargo/registry"),
       },
       {
         type: "cache",
-        target: `/usr/src/app/target`,
+        target: "/usr/local/cargo/git",
+        id: id("/usr/local/cargo/git"),
+      },
+      {
+        type: "cache",
+        target: "target",
+        id: id("target"),
       },
     ]),
   ];

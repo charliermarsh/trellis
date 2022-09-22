@@ -58,7 +58,9 @@ export class Image implements Codegen {
       | (() => Instruction)
       | (() => Instruction[]),
   ): Image {
-    const resolved: Instruction | Instruction[] = typeof layers === "function" ? layers() : layers;
+    const resolved: Instruction | Instruction[] = typeof layers === "function"
+      ? layers()
+      : layers;
     return new Image(
       this.name,
       this.source,

@@ -1,4 +1,4 @@
-import { Env, Run } from "../../../trellis/mod.ts";
+import { Env, id, Run } from "../../../trellis/mod.ts";
 
 export function InstallRustToolchain(version: string) {
   return [
@@ -17,8 +17,9 @@ export function Cargo(subCommand: string) {
     new Run(`cargo ${subCommand}`, [
       {
         type: "cache",
-        target: "/.cargo/registry",
         sharing: "locked",
+        target: "/.cargo/registry",
+        id: id("/.cargo/registry"),
       },
     ]),
   ];

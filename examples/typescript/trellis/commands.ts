@@ -1,4 +1,4 @@
-import { Run } from "../../../trellis/mod.ts";
+import { id, Run } from "../../../trellis/mod.ts";
 
 export function npm(subCommand: string) {
   return [
@@ -6,6 +6,7 @@ export function npm(subCommand: string) {
       {
         type: "cache",
         target: "/.cache/npm",
+        id: id("/.cache/npm"),
       },
     ]),
   ];
