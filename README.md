@@ -422,7 +422,8 @@ daemon is locally accessible.
 ## Roadmap
 
 1. Automatically connect to (extremely fast) cloud compute for build and task
-   execution. Make cloud-based builds feel local.
+   execution. Make cloud-based builds feel local. (Today, you can accelerate
+   Trellis builds via [depot.dev](https://depot.dev/). See: ["Depot"](#Depot).)
 2. Create abstractions around "job configuration" and "workflow state", with
    infrastructure-as-code and one-click deployments, turning Trellis into a
    standalone CI solution.
