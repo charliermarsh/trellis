@@ -1,5 +1,5 @@
 import { Image } from "../../../trellis/mod.ts";
-import { NPM } from "./commands.ts";
+import { npm } from "./commands.ts";
 
 const NODE_VERSION = "18";
 const WORKSPACES = ["app", "packages/core"];
@@ -21,7 +21,7 @@ for (const workspace of WORKSPACES) {
 }
 
 // Install dependencies.
-buildStage = buildStage.with(new NPM("ci"));
+buildStage = buildStage.with(npm("ci"));
 
 // Copy over workspace contents.
 for (const workspace of WORKSPACES) {

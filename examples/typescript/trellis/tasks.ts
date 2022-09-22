@@ -1,19 +1,20 @@
 import "https://deno.land/x/dotenv/load.ts";
 import { WebClient } from "https://deno.land/x/slack_web_api/mod.js";
 import { build, Image, run } from "../../../trellis/mod.ts";
+import { npm } from "./commands.ts";
 import buildStage from "./mod.ts";
 
 export default async function runChecks({ notify }: { notify?: boolean }) {
   await build(buildStage);
 
-  const checkFormat = Image.from(buildStage).run(
-    "npm run check-format --workspaces",
+  const checkFormat = Image.from(buildStage).with(
+    npm("run check-format --workspaces"),
   );
-  const checkTypes = Image.from(buildStage).run(
-    "npm run check-types --workspaces",
+  const checkTypes = Image.from(buildStage).with(
+    npm("run check-types --workspaces"),
   );
-  const checkLint = Image.from(buildStage).run(
-    "npm run check-lint --workspaces",
+  const checkLint = Image.from(buildStage).with(
+    npm("run check-lint --workspaces"),
   );
 
   const result: Deno.ProcessStatus[] = await Promise.all([

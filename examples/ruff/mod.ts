@@ -1,12 +1,12 @@
 import { Image } from "../../trellis/mod.ts";
-import { BuildCargoProject } from "./commands.ts";
+import { BuildCrate } from "./commands.ts";
 
 const buildStage = Image.from("rust:1.63")
   .run("rustup component add clippy")
   .run("rustup component add rustfmt")
   .workDir("/usr/src/app")
   // Build project.
-  .with(new BuildCargoProject("ruff"))
+  .with(BuildCrate("ruff"))
   // Copy over auxiliary resources.
   .copy("ruff/resources", "resources")
   .copy("ruff/pyproject.toml", "pyproject.toml");

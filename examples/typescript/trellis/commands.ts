@@ -1,14 +1,12 @@
-import { Command, Run } from "../../../trellis/mod.ts";
+import { Run } from "../../../trellis/mod.ts";
 
-export class NPM extends Command {
-  constructor(command: string) {
-    super(
-      new Run(`npm set cache /.cache/npm && npm ${command}`, [
-        {
-          type: "cache",
-          target: "/.cache/npm",
-        },
-      ]),
-    );
-  }
+export function npm(subCommand: string) {
+  return [
+    new Run(`npm set cache /.cache/npm && npm ${subCommand}`, [
+      {
+        type: "cache",
+        target: "/.cache/npm",
+      },
+    ]),
+  ];
 }

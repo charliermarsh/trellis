@@ -1,5 +1,4 @@
 import { Config, defineConfig } from "./config.ts";
-import { Command } from "./commands.ts";
 import { build, run, save } from "./docker.ts";
 import { Image } from "./image.ts";
 import {
@@ -22,7 +21,6 @@ export {
   Arg,
   build,
   Cmd,
-  Command,
   Copy,
   defineConfig,
   Entrypoint,

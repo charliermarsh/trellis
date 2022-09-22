@@ -6,17 +6,17 @@ export default async function runChecks() {
   await build(buildStage);
   await run(
     Image.from(buildStage).with(
-      new Cargo("fmt --locked --check"),
+      Cargo("fmt --locked --check"),
     ),
   );
   await run(
     Image.from(buildStage).with(
-      new Cargo("test --locked"),
+      Cargo("test --locked"),
     ),
   );
   await run(
     Image.from(buildStage).with(
-      new Cargo("clippy --locked -- -D warnings"),
+      Cargo("clippy --locked -- -D warnings"),
     ),
   );
 }

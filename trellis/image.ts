@@ -1,5 +1,5 @@
 import { Codegen } from "./codegen.ts";
-import { AptInstall, Command } from "./commands.ts";
+import { aptInstall } from "./commands.ts";
 import {
   Arg,
   Cmd,
@@ -24,14 +24,14 @@ export class Image implements Codegen {
   name: string;
   source: string;
   tag: string | null;
-  layers: (Instruction | Command)[];
+  layers: Instruction[];
   dependencies: Image[];
 
   constructor(
     name: string,
     source: string,
     tag: string | null,
-    layers: (Instruction | Command)[],
+    layers: Instruction[],
     dependencies: Image[],
   ) {
     this.name = name;
@@ -51,12 +51,15 @@ export class Image implements Codegen {
     );
   }
 
-  with(layer: Instruction | Command): Image {
+  with(layers: Instruction | Instruction[]): Image {
     return new Image(
       this.name,
       this.source,
       this.tag,
-      [...this.layers, layer],
+      [
+        ...this.layers,
+        ...(Array.isArray(layers) ? layers : [layers]),
+      ],
       this.dependencies,
     );
   }
@@ -120,7 +123,7 @@ export class Image implements Codegen {
    * Custom layers.
    */
   aptInstall(dependencies: string[]): Image {
-    return this.with(new AptInstall(dependencies));
+    return this.with(aptInstall(dependencies));
   }
 
   /**
@@ -183,9 +186,5 @@ export class Artifact {
 
 export function taskNameFor(image: Image): string | null {
   const layer = image.layers[image.layers.length - 1];
-  return layer instanceof Run
-    ? layer.sh
-    : layer instanceof Command && layer.instructions instanceof Run
-    ? layer.instructions.sh
-    : null;
+  return layer instanceof Run ? layer.sh : null;
 }

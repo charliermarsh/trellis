@@ -14,11 +14,11 @@ const buildStage = Image.from(`ubuntu:${UBUNTU_VERSION}`)
     "pkg-config",
     "software-properties-common",
   ])
-  .with(new InstallRustToolchain(RUST_VERSION))
+  .with(InstallRustToolchain(RUST_VERSION))
   .copy("./Cargo.toml", "./Cargo.toml")
   .copy("./Cargo.lock", "./Cargo.lock")
   .copy("./src", "./src")
-  .with(new Cargo("build --release"));
+  .with(Cargo("build --release"));
 
 const binary = buildStage.saveArtifact("/root/target/release/hello-rocket");
 
