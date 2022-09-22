@@ -1,5 +1,5 @@
 export { Sha256 } from "https://deno.land/std@0.156.0/hash/sha256.ts";
-export { join } from "https://deno.land/std@0.156.0/path/mod.ts";
+export { dirname, join } from "https://deno.land/std@0.156.0/path/mod.ts";
 export { default as Kia } from "https://deno.land/x/kia@0.4.1/kia.ts";
 export { default as toposort } from "https://cdn.skypack.dev/toposort";
 export {

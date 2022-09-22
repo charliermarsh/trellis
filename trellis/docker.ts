@@ -1,8 +1,9 @@
 /**
  * High-level interface to the Docker CLI.
  */
+import { useContext } from "./context.ts";
 import { join, Kia, Sha256 } from "./deps.ts";
-import { dockerBuild, dockerPush } from "./docker-cli.ts";
+import { dockerBuild } from "./docker-cli.ts";
 import { Artifact, Image } from "./image.ts";
 import { Run } from "./instructions.ts";
 import { solve } from "./solver.ts";
@@ -10,7 +11,7 @@ import { solve } from "./solver.ts";
 /**
  * Build an image.
  */
-export async function build(image: Image): Promise<string> {
+export async function build(image: Image, push?: boolean): Promise<string> {
   const tag = image.tag
     ? image.tag
     : `trellis/${new Sha256().update(solve(image)).hex()}`;
@@ -22,7 +23,12 @@ export async function build(image: Image): Promise<string> {
   const tempFilePath = join(tempDirPath, "Dockerfile");
   await Deno.writeTextFile(tempFilePath, solve(image));
 
-  const status = await dockerBuild(".", tempFilePath, { tag: tag });
+  const { engine } = useContext();
+  const status = await dockerBuild(engine, ".", tempFilePath, {
+    tag: tag,
+    push: push,
+  });
+
   if (status.success) {
     kia.succeed();
   } else {
@@ -31,27 +37,6 @@ export async function build(image: Image): Promise<string> {
   }
 
   return tag;
-}
-
-/**
- * Push an image.
- */
-export async function push(image: Image): Promise<void> {
-  const tag = image.tag
-    ? image.tag
-    : `trellis/${new Sha256().update(solve(image)).hex()}`;
-
-  const kia = new Kia({ text: `Push: ${tag}` });
-  if (!(Deno.env.get("CI") === "true")) kia.start();
-
-  // Push the built Docker image.
-  const status = await dockerPush(tag);
-  if (status.success) {
-    kia.succeed();
-  } else {
-    kia.fail();
-    throw Error(`Failed to push ${tag}`);
-  }
 }
 
 /**
@@ -68,14 +53,11 @@ export async function run(image: Image): Promise<Deno.ProcessStatus> {
   const tempFilePath = join(tempDirPath, "Dockerfile");
   await Deno.writeTextFile(tempFilePath, solve(image));
 
-  const status = await dockerBuild(
-    ".",
-    tempFilePath,
-    { quiet: true, rm: true },
-    {
-      "stdout": "null",
-    },
-  );
+  const { engine } = useContext();
+  const status = await dockerBuild(engine, ".", tempFilePath, { quiet: true }, {
+    "stdout": "null",
+  });
+
   if (status.success) {
     kia.succeed();
   } else {
@@ -100,7 +82,8 @@ export async function save(
   const tempFilePath = join(tempDirPath, "Dockerfile");
   await Deno.writeTextFile(tempFilePath, solve(copyStage));
 
-  const status = await dockerBuild(".", tempFilePath, {
+  const { engine } = useContext();
+  const status = await dockerBuild(engine, ".", tempFilePath, {
     quiet: true,
     output: { type: "local", dest: destPath },
   }, {

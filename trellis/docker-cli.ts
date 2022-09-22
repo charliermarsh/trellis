@@ -2,16 +2,20 @@
  * Low-level interface to the Docker CLI.
  */
 
+import { commandFor, Engine } from "./engine.ts";
+
 /**
- * Run `docker build`.
+ * Run `docker buildx build`.
  */
 export async function dockerBuild(
+  engine: Engine,
   path: string,
   dockerfile: string,
   flags: {
     tag?: string;
     quiet?: boolean;
     rm?: boolean;
+    push?: boolean;
     output?: { type: "local"; dest: string };
   },
   options?: {
@@ -23,8 +27,8 @@ export async function dockerBuild(
   // Build the Docker image.
   const process = Deno.run({
     cmd: [
-      "docker",
-      "build",
+      ...commandFor(engine),
+      ...(flags.push ? ["--push"] : []),
       ...(flags.quiet ? ["--quiet"] : []),
       ...(flags.rm ? ["--rm"] : []),
       ...(flags.tag ? ["-t", flags.tag] : []),
@@ -35,26 +39,6 @@ export async function dockerBuild(
       dockerfile,
       path,
     ],
-    env: {
-      "DOCKER_BUILDKIT": "1",
-      "DOCKER_SCAN_SUGGEST": "false",
-    },
-    ...options,
-  });
-  return await process.status();
-}
-
-/**
- * Run `docker push`.
- */
-export async function dockerPush(nameTag: string, options?: {
-  stdout?: "inherit" | "piped" | "null" | number;
-  stderr?: "inherit" | "piped" | "null" | number;
-  stdin?: "inherit" | "piped" | "null" | number;
-}): Promise<Deno.ProcessStatus> {
-  // Push the built Docker image.
-  const process = Deno.run({
-    cmd: ["docker", "push", nameTag],
     env: {
       "DOCKER_BUILDKIT": "1",
       "DOCKER_SCAN_SUGGEST": "false",

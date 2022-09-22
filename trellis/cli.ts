@@ -1,5 +1,7 @@
 #!/usr/bin/env deno
 import { loadModule, showImages, showTargets, showTasks } from "./cli-utils.ts";
+import { loadConfig } from "./config.ts";
+import { setContext } from "./context.ts";
 import {
   bold,
   Command,
@@ -10,7 +12,7 @@ import {
   Sha256,
   white,
 } from "./deps.ts";
-import { build, push } from "./docker.ts";
+import { build } from "./docker.ts";
 import { Image } from "./image.ts";
 import { solve } from "./solver.ts";
 
@@ -90,7 +92,7 @@ async function previewCommand(file: string, target?: string) {
 async function buildCommand(
   file: string,
   target?: string,
-  shouldPush?: boolean,
+  push?: boolean,
 ) {
   const module = await loadModule(file);
 
@@ -131,6 +133,10 @@ async function buildCommand(
     Deno.exit(1);
   }
 
+  // Load the Trellis configuration.
+  const { engine } = await loadConfig();
+  setContext({ engine });
+
   // To build (and push), we need a tag. Generate one based on the file and target.
   let image = exportedTarget;
   if (image.tag == null) {
@@ -142,10 +148,7 @@ async function buildCommand(
 
   // Build (and push) the Docker image.
   try {
-    await build(image);
-    if (shouldPush) {
-      await push(image);
-    }
+    await build(image, push);
   } catch (e) {
     console.error(
       `${red(bold("error"))}: ${white(e.message)}`,
@@ -198,6 +201,10 @@ async function runCommand(file: string, target?: string) {
     showTargets(file, module);
     Deno.exit(1);
   }
+
+  // Load the Trellis configuration.
+  const { engine } = await loadConfig();
+  setContext({ engine });
 
   // Extract options for the command.
   const parsedArgs = parse(Deno.args, { "--": true });
