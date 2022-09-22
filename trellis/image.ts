@@ -51,14 +51,21 @@ export class Image implements Codegen {
     );
   }
 
-  with(layers: Instruction | Instruction[]): Image {
+  with(
+    layers:
+      | Instruction
+      | Instruction[]
+      | (() => Instruction)
+      | (() => Instruction[]),
+  ): Image {
+    const resolved: Instruction | Instruction[] = typeof layers === "function" ? layers() : layers;
     return new Image(
       this.name,
       this.source,
       this.tag,
       [
         ...this.layers,
-        ...(Array.isArray(layers) ? layers : [layers]),
+        ...(Array.isArray(resolved) ? resolved : [resolved]),
       ],
       this.dependencies,
     );
