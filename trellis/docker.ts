@@ -57,7 +57,7 @@ export async function run(image: Image): Promise<Deno.ProcessStatus> {
     engine,
     ".",
     tempFilePath,
-    { quiet: false },
+    { quiet: true },
     {
       "stdout": "null",
     },
