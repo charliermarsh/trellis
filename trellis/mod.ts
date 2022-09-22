@@ -1,5 +1,6 @@
+import { Config, defineConfig } from "./config.ts";
 import { Command } from "./commands.ts";
-import { build, push, run, save } from "./docker.ts";
+import { build, run, save } from "./docker.ts";
 import { Image } from "./image.ts";
 import {
   Arg,
@@ -23,12 +24,12 @@ export {
   Cmd,
   Command,
   Copy,
+  defineConfig,
   Entrypoint,
   Env,
   Expose,
   Image,
   Label,
-  push,
   Run,
   run,
   save,
@@ -38,3 +39,5 @@ export {
   Volume,
   WorkDir,
 };
+
+export type { Config };

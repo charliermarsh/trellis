@@ -2,9 +2,9 @@ import { build, Image, save } from "../../trellis/mod.ts";
 import { runc } from "./build.ts";
 
 export default async function createSpec() {
-  const image = await build(runc);
+  await build(runc);
 
-  const specArtifact = Image.from(image)
+  const specArtifact = Image.from(runc)
     .workDir("/mycontainer")
     .copy("rootfs", "rootfs")
     .run("runc spec")

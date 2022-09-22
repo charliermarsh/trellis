@@ -184,6 +184,45 @@ We can execute the task locally with `trellis run tasks.ts`:
 √ Run: curl --help
 ```
 
+### Configuration
+
+Trellis can be configured via a `trellis.config.ts` file, the basic semantics of
+which are modelled after [Vite](https://vitejs.dev/config/).
+
+The `trellis.config.ts` should contain a single default export consisting of a
+`defineConfig` invocation, like this:
+
+```typescript
+import { defineConfig } from "https://deno.land/x/trellis@v0.0.5/mod.ts";
+
+export default defineConfig({
+  engine: "docker",
+});
+```
+
+Trellis will use the closest `trellis.config.ts`, looking first in the current
+working directory, and then in each subsequent parent directory.
+
+### Depot
+
+Trellis is compatible with [depot.dev](https://depot.dev/), which can be used to
+enable cloud-accelerated builds with zero configuration. Run through the Depot
+installation (`brew install depot/tap/depot` or similar, followed by
+`deplot login`), then define a `trellis.config.ts` like so:
+
+```typescript
+import { defineConfig } from "https://deno.land/x/trellis@v0.0.5/mod.ts";
+
+export default defineConfig({
+  engine: {
+    type: "depot",
+    project: "${YOUR_PROJECT_ID}",
+  },
+});
+```
+
+From there, all Trellis builds will run through Depot.
+
 ### Trellis on GitHub Actions
 
 Trellis runs on Deno, making it a one-step installation on GitHub Actions:

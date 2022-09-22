@@ -1,2 +1,5 @@
 # Editors
 .idea
+
+# Local configuration
+trellis.config.ts

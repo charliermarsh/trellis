@@ -4,15 +4,15 @@ import { build, Image, run } from "../../../trellis/mod.ts";
 import buildStage from "./mod.ts";
 
 export default async function runChecks({ notify }: { notify?: boolean }) {
-  const image = await build(buildStage);
+  await build(buildStage);
 
-  const checkFormat = Image.from(image).run(
+  const checkFormat = Image.from(buildStage).run(
     "npm run check-format --workspaces",
   );
-  const checkTypes = Image.from(image).run(
+  const checkTypes = Image.from(buildStage).run(
     "npm run check-types --workspaces",
   );
-  const checkLint = Image.from(image).run(
+  const checkLint = Image.from(buildStage).run(
     "npm run check-lint --workspaces",
   );
 
