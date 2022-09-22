@@ -16,7 +16,7 @@ export class InstallRustToolchain extends Command {
 
 export class Cargo extends Command {
   constructor(command: string) {
-    super([
+    super(
       new Run(`cargo ${command}`, [
         {
           type: "cache",
@@ -24,6 +24,6 @@ export class Cargo extends Command {
           sharing: "locked",
         },
       ]),
-    ]);
+    );
   }
 }

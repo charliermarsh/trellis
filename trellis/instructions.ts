@@ -8,7 +8,7 @@ import { Image } from "./image.ts";
 import { Mount, serialize } from "./mount.ts";
 import { EnvVars } from "./types.ts";
 
-interface Instruction extends Codegen {}
+export interface Instruction extends Codegen {}
 
 export class Run implements Instruction {
   sh: string;

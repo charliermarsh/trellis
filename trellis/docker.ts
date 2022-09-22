@@ -1,12 +1,10 @@
 /**
  * High-level interface to the Docker CLI.
  */
-import { Command } from "./commands.ts";
 import { useContext } from "./context.ts";
 import { join, Kia, Sha256 } from "./deps.ts";
 import { dockerBuild } from "./docker-cli.ts";
-import { Artifact, Image } from "./image.ts";
-import { Run } from "./instructions.ts";
+import { Artifact, Image, taskNameFor } from "./image.ts";
 import { solve } from "./solver.ts";
 
 /**
@@ -44,13 +42,9 @@ export async function build(image: Image, push?: boolean): Promise<string> {
  * "Run" an image. This consists of building the image silently without tags.
  */
 export async function run(image: Image): Promise<Deno.ProcessStatus> {
-  const layer = image.layers[image.layers.length - 1];
+  const taskName = taskNameFor(image);
   const kia = new Kia({
-    text: layer instanceof Run
-      ? `Run: ${layer.sh}`
-      : layer instanceof Command && layer.instructions instanceof Run
-      ? `Run: ${layer.instructions.sh}`
-      : "Run task",
+    text: taskName ? `Run: ${taskName}` : "Run task",
   });
   if (!(Deno.env.get("CI") === "true")) kia.start();
 

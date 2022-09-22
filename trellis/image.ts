@@ -1,5 +1,5 @@
 import { Codegen } from "./codegen.ts";
-import { AptInstall } from "./commands.ts";
+import { AptInstall, Command } from "./commands.ts";
 import {
   Arg,
   Cmd,
@@ -7,6 +7,7 @@ import {
   Entrypoint,
   Env,
   Expose,
+  Instruction,
   Label,
   Run,
   Shell,
@@ -23,14 +24,14 @@ export class Image implements Codegen {
   name: string;
   source: string;
   tag: string | null;
-  layers: Codegen[];
+  layers: (Instruction | Command)[];
   dependencies: Image[];
 
   constructor(
     name: string,
     source: string,
     tag: string | null,
-    layers: Codegen[],
+    layers: (Instruction | Command)[],
     dependencies: Image[],
   ) {
     this.name = name;
@@ -50,7 +51,7 @@ export class Image implements Codegen {
     );
   }
 
-  with(layer: Codegen): Image {
+  with(layer: Instruction | Command): Image {
     return new Image(
       this.name,
       this.source,
@@ -178,4 +179,13 @@ export class Artifact {
     this.source = source;
     this.fileName = fileName;
   }
+}
+
+export function taskNameFor(image: Image): string | null {
+  const layer = image.layers[image.layers.length - 1];
+  return layer instanceof Run
+    ? layer.sh
+    : layer instanceof Command && layer.instructions instanceof Run
+    ? layer.instructions.sh
+    : null;
 }

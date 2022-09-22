@@ -19,7 +19,7 @@ export class Command implements Codegen {
 
 export class AptInstall extends Command {
   constructor(dependencies: string[]) {
-    super([
+    super(
       new Run(
         `apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${
           dependencies
@@ -39,6 +39,6 @@ export class AptInstall extends Command {
           },
         ],
       ),
-    ]);
+    );
   }
 }
