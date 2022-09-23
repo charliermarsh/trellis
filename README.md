@@ -403,6 +403,8 @@ systems, or for defining entire CI/CD pipelines.
 - `typescript`: A TypeScript monorepo. Demonstrates efficient builds and CI
   checks, along with consolidating constants (like the list of TypeScript
   workspaces).
+- `wasm`: A "Hello, world!" Rust binary that's compiled to Wasm and tested on
+  [Wasmtime](https://wasmtime.dev/).
 
 ## Architecture
 
