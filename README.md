@@ -208,7 +208,7 @@ working directory, and then in each subsequent parent directory.
 Trellis is compatible with [depot.dev](https://depot.dev/), which can be used to
 enable cloud-accelerated builds with zero configuration. Run through the Depot
 installation (`brew install depot/tap/depot` or similar, followed by
-`deplot login`), then define a `trellis.config.ts` like so:
+`depot login`), then define a `trellis.config.ts` like so:
 
 ```typescript
 import { defineConfig } from "https://deno.land/x/trellis@v0.0.6/mod.ts";
