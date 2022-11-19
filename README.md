@@ -25,7 +25,7 @@ deno install \
     --allow-write \
     --allow-env \
     --allow-read \
-    https://deno.land/x/trellis@v0.0.6/cli.ts
+    https://deno.land/x/trellis@v0.0.7/cli.ts
 ```
 
 Run `trellis --help` to verify your installation:
